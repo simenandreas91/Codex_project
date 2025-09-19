@@ -347,7 +347,7 @@ function createSnippetCard(snippet) {
 
     const deleteBtn = document.createElement('button');
     deleteBtn.type = 'button';
-    deleteBtn.className = 'danger';
+    deleteBtn.className = 'ghost';
     deleteBtn.textContent = 'Delete';
     deleteBtn.addEventListener('click', () => confirmDelete(snippet));
 
