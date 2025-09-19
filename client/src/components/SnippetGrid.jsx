@@ -1,4 +1,3 @@
-import { CodeBlock } from './CodeBlock';
 import { formatFieldValue } from '../utils/format';
 
 function SnippetCard({
@@ -15,8 +14,6 @@ function SnippetCard({
   const updatedLabel = updatedAt
     ? `Updated ${updatedAt.toLocaleString()}${ownerLabel}`
     : ownerLabel || 'Shared library';
-  const scriptPreview = (snippet.script ?? '').trim();
-
   return (
     <article className="snippet-card">
       <div className="snippet-card__glow" aria-hidden="true" />
@@ -53,8 +50,6 @@ function SnippetCard({
               })}
           </dl>
         ) : null}
-
-        {scriptPreview ? <CodeBlock value={scriptPreview} className="snippet-card__code" /> : null}
 
         <footer className="snippet-card__footer">
           <div className="snippet-card__meta">

@@ -59,43 +59,28 @@ function App() {
   const [isLoadingSnippets, setLoadingSnippets] = useState(false);
   const [pageError, setPageError] = useState('');
 
-  const statsSummary = useMemo(() => {
-    const data = [
-      {
-        label: 'Available snippets',
-        value: snippets.length.toString().padStart(2, '0')
-      }
-    ];
-
-    if (filters.type) {
-      data.push({
-        label: 'Active type',
-        value: snippetTypeMap[filters.type]?.label ?? filters.type
-      });
-    } else {
-      data.push({ label: 'Active type', value: 'All categories' });
+  const defaultSnippetType = useMemo(() => {
+    if (filters.type && filters.type !== '__my_snippets') {
+      return filters.type;
     }
-
-    if (filters.q) {
-      data.push({ label: 'Search query', value: `“${filters.q}”` });
-    }
-
-    return data;
-  }, [snippets.length, filters, snippetTypeMap]);
-  const mySnippetsWithLabels = useMemo(
-    () =>
-      mySnippets.map((snippet) => ({
-        ...snippet,
-        typeLabel: snippetTypeMap[snippet.type]?.label ?? snippet.type
-      })),
-    [mySnippets, snippetTypeMap]
-  );
+    return snippetTypes[0]?.id ?? '';
+  }, [filters.type, snippetTypes]);
 
   const refreshSnippets = useCallback(async (inputFilters) => {
     const effectiveFilters = inputFilters ?? filtersRef.current;
     setLoadingSnippets(true);
     try {
-      const data = await fetchSnippets(effectiveFilters);
+      const options = {};
+      if (effectiveFilters.q) {
+        options.q = effectiveFilters.q;
+      }
+      if (effectiveFilters.type === '__my_snippets') {
+        options.owned = true;
+      } else if (effectiveFilters.type) {
+        options.type = effectiveFilters.type;
+      }
+
+      const data = await fetchSnippets(options);
       setSnippets(data);
       setPageError('');
     } catch (error) {
@@ -321,7 +306,7 @@ function App() {
           snippetTypes={snippetTypes}
           activeType={filters.type}
           onSelectType={handleTypeSelect}
-          mySnippets={mySnippetsWithLabels}
+          mySnippets={mySnippets}
           onSelectMySnippet={handleViewSnippet}
           isAuthenticated={Boolean(user)}
         />
@@ -353,15 +338,6 @@ function App() {
             </div>
           </div>
 
-          <div className="workspace__stats">
-            {statsSummary.map((stat) => (
-              <div key={stat.label} className="stat-card">
-                <span className="stat-card__value">{stat.value}</span>
-                <span className="stat-card__label">{stat.label}</span>
-              </div>
-            ))}
-          </div>
-
           <SnippetGrid
             snippets={snippets}
             snippetTypeMap={snippetTypeMap}
@@ -390,7 +366,7 @@ function App() {
         snippet={snippetDraft}
         snippetTypes={snippetTypes}
         snippetTypeMap={snippetTypeMap}
-        defaultType={filters.type ?? snippetTypes[0]?.id}
+        defaultType={defaultSnippetType}
         onClose={handleCloseSnippetModal}
         onSubmit={handleSnippetSubmit}
         error={snippetError}

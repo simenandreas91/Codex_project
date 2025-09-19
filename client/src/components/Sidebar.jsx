@@ -3,9 +3,16 @@ export function Sidebar({
   activeType,
   onSelectType,
   mySnippets,
-  onSelectMySnippet,
   isAuthenticated
 }) {
+  const handleMySnippetsFilter = () => {
+    if (activeType === '__my_snippets') {
+      onSelectType(null);
+    } else {
+      onSelectType('__my_snippets');
+    }
+  };
+
   return (
     <aside className="sidebar">
       <section className="sidebar__section">
@@ -41,26 +48,17 @@ export function Sidebar({
           <div className="sidebar__section-heading">
             <div>
               <h2 className="sidebar__title">My Snippets</h2>
-              <p className="sidebar__subtitle">Quick access to your drafts</p>
+              <p className="sidebar__subtitle">Toggle the gallery to only your contributions</p>
             </div>
           </div>
-          <div className="sidebar__list">
-            {!mySnippets.length ? (
-              <div className="sidebar__empty">No personal snippets yet — create one to save it here.</div>
-            ) : (
-              mySnippets.map((snippet) => (
-                <button
-                  key={snippet.id}
-                  type="button"
-                  className="sidebar__list-item"
-                  onClick={() => onSelectMySnippet(snippet)}
-                >
-                  <span className="sidebar__list-name">{snippet.name}</span>
-                  <span className="sidebar__list-type">{snippet.typeLabel ?? snippet.type}</span>
-                </button>
-              ))
-            )}
-          </div>
+          <button
+            type="button"
+            className={`filter-chip ${activeType === '__my_snippets' ? 'is-active' : ''}`.trim()}
+            onClick={handleMySnippetsFilter}
+            disabled={!mySnippets.length}
+          >
+            My snippets ({mySnippets.length.toString().padStart(2, '0')})
+          </button>
         </section>
       ) : null}
 

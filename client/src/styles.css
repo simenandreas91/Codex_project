@@ -24,7 +24,7 @@
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 24px;
-  --content-max-width: min(1280px, calc(100vw - 72px));
+  --content-max-width: min(1400px, calc(100vw - 64px));
   --transition: 180ms ease;
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -351,6 +351,12 @@ textarea {
   transform: translateY(-1px);
 }
 
+.filter-chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
 .sidebar__list {
   display: flex;
   flex-direction: column;
@@ -409,8 +415,7 @@ textarea {
 
 /* Workspace */
 .workspace {
-  max-width: var(--content-max-width);
-  margin: 0 auto;
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -455,34 +460,6 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-}
-
-.workspace__stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.stat-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 18px 20px;
-  box-shadow: var(--shadow-md);
-  backdrop-filter: blur(18px);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.stat-card__value {
-  font-size: 1.4rem;
-  font-weight: 600;
-}
-
-.stat-card__label {
-  font-size: 0.85rem;
-  color: var(--text-muted);
 }
 
 /* Snippet grid */
@@ -595,13 +572,6 @@ textarea {
 .snippet-card__metadata-row dd {
   margin: 0;
   font-weight: 500;
-}
-
-.snippet-card__code {
-  border-radius: var(--radius-md);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(13, 17, 32, 0.85);
-  overflow: hidden;
 }
 
 .snippet-card__footer {

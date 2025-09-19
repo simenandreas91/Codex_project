@@ -31,10 +31,10 @@ export async function fetchSession() {
   return handleResponse(response);
 }
 
-export async function fetchSnippets({ q, type } = {}) {
+export async function fetchSnippets({ q, type, owned } = {}) {
   const params = new URLSearchParams();
   if (q) params.set('q', q);
-  if (type) params.set('type', type);
+  if (owned) { params.set('owned', 'true'); } else if (type) { params.set('type', type); }
   const query = params.toString();
   const url = query ? `/api/snippets?${query}` : '/api/snippets';
   const response = await fetch(url, { credentials: 'include' });

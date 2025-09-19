@@ -63,5 +63,18 @@ export const snippetTypes = [
       { id: 'shortDescription', label: 'Short description', type: 'text', placeholder: 'Highlight P1 incidents' },
       { id: 'conditions', label: 'Conditions', type: 'textarea', placeholder: 'priority == 1' }
     ]
+  },
+  {
+    id: 'ui_action',
+    label: 'UI Action',
+    description: 'Form or list buttons that trigger contextual automation.',
+    fields: [
+      { id: 'application', label: 'Application', type: 'text', required: true, placeholder: 'Global' },
+      { id: 'table', label: 'Table', type: 'text', required: true, placeholder: 'incident' },
+      { id: 'showInsert', label: 'Show insert', type: 'checkbox', defaultValue: true },
+      { id: 'showUpdate', label: 'Show update', type: 'checkbox', defaultValue: true },
+      { id: 'client', label: 'Client-side', type: 'checkbox', defaultValue: false },
+      { id: 'condition', label: 'Condition', type: 'textarea', placeholder: 'current.active == true' }
+    ]
   }
 ];
