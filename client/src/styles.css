@@ -24,6 +24,7 @@
   --radius-sm: 10px;
   --radius-md: 16px;
   --radius-lg: 24px;
+  --content-max-width: min(1280px, calc(100vw - 72px));
   --transition: 180ms ease;
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 }
@@ -158,6 +159,9 @@ textarea {
 }
 
 .topbar__inner {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  width: 100%;
   display: grid;
   grid-template-columns: minmax(220px, 1fr) minmax(320px, 2fr) minmax(220px, auto);
   gap: 24px;
@@ -277,9 +281,11 @@ textarea {
 /* Layout */
 .layout-grid {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: 296px minmax(0, 1fr);
   gap: 28px;
-  margin-top: 32px;
+  max-width: var(--content-max-width);
+  margin: 32px auto 0;
+  align-items: start;
 }
 
 /* Sidebar */
@@ -403,6 +409,8 @@ textarea {
 
 /* Workspace */
 .workspace {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 28px;
@@ -650,6 +658,9 @@ textarea {
 }
 
 .modal-body {
+  max-height: calc(92vh - 220px);
+  overflow-y: auto;
+  padding-right: 4px;
   display: flex;
   flex-direction: column;
   gap: 18px;
@@ -845,6 +856,8 @@ textarea {
 }
 
 .modal {
+  max-height: min(92vh, 860px);
+  overflow: hidden;
   position: fixed;
   top: 50%;
   left: 50%;
@@ -883,6 +896,9 @@ textarea {
 /* Responsive tweaks */
 @media (max-width: 1100px) {
   .topbar__inner {
+  max-width: var(--content-max-width);
+  margin: 0 auto;
+  width: 100%;
     grid-template-columns: 1fr;
     gap: 16px;
   }
@@ -892,6 +908,11 @@ textarea {
   }
 
   .layout-grid {
+  display: grid;
+  grid-template-columns: 296px minmax(0, 1fr);
+  max-width: var(--content-max-width);
+  margin: 32px auto 0;
+
     grid-template-columns: 1fr;
   }
 }
@@ -910,6 +931,8 @@ textarea {
   }
 
   .modal {
+  max-height: min(92vh, 860px);
+  overflow: hidden;
     width: calc(100vw - 24px);
   }
 
@@ -918,3 +941,14 @@ textarea {
     grid-template-columns: 1fr;
   }
 }
+
+.view-modal .code-block {
+  max-height: 320px;
+  overflow: auto;
+}
+
+
+
+
+
+

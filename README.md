@@ -1,56 +1,58 @@
 # ServiceNow Snippet Hub
 
-A VS Code-inspired dark themed web app for ServiceNow developers. The UI now runs on a modern React + Vite stack backed by an Express/SQLite API, so teams can publish, search, and reuse common artifacts such as Business Rules, Client Scripts, Script Includes, UI Policies, and UI Actions.
+A modern ServiceNow snippet catalog powered by React, Vite, Express, and SQLite. Design-driven glassmorphism surfaces, code-highlighting, and componentized flows make it effortless for teams to publish, search, and reuse artifacts such as Business Rules, Client Scripts, Script Includes, UI Policies, UI Actions, and more.
 
 ## Features
 
-- Fast search across snippet name, description, script body, and metadata.
-- Type-aware forms that capture the key fields for each ServiceNow artifact.
-- Modern React UI with componentized modals, hooks, and highlight.js code previews.
-- SQLite persistence with session-backed authentication (email + password).
-- Authenticated users can create, edit, and delete their own snippets.
-- Anonymous users can browse, filter, and inspect snippet scripts and metadata.
+- Instant search over names, descriptions, metadata, and script bodies.
+- Type-specific creation flows with rich metadata capture for every artifact.
+- React + hooks architecture with modal wizardry, fullscreen script viewer, and highlight.js-powered previews.
+- Glassmorphism-inspired UI shell with responsive layout, stats rail, and glowing snippet cards.
+- Express + SQLite backend with session-backed auth (email/password) and owner-scoped filtering.
+- Anonymous browsing, owner-only editing, and curated "My snippets" shortcuts.
 
 ## Getting started
 
 ```bash
-npm install           # installs server deps + client via postinstall
-npm run dev           # runs nodemon (API) + Vite (client) together
+npm install           # installs server dependencies and bootstraps client via postinstall
+npm run dev           # runs the Express API (nodemon) + Vite dev server together
 ```
 
-Open http://localhost:5173 for the React client (API proxied to http://localhost:3000).
+The Vite dev server runs at http://localhost:5173 and proxies `/api/*` to http://localhost:3000.
 
-For a production-style build:
+Production-style build and serve:
 
 ```bash
-npm run build         # builds the React bundle into client/dist
-npm start             # serves the built assets from Express on http://localhost:3000
+npm run build         # builds the React client into client/dist
+npm start             # serves Express + built client on http://localhost:3000
 ```
 
-Sessions are stored locally in `data/sessions.sqlite`.
+Sessions live in `data/sessions.sqlite` (local to your workspace).
 
 ## Project structure
 
 ```
 client/           # Vite + React front-end (source + tooling)
-client/src/       # React components, hooks, utilities, global styles
-src/              # Express server and SQLite helpers
+client/src/       # React components, hooks, utilities, and global design system
+src/              # Express API, session middleware, SQLite data access
 data/             # SQLite databases (created on first run)
-package.json      # Backend scripts for dev/build/start
+package.json      # Backend scripts orchestrating dev/build/start
 ```
 
 ## Snippet types & captured fields
 
-- **Business Rule** - application, table, timing, order, active flag, condition, script body.
-- **Client Script** - application, table, client trigger, target field, active flag, script body.
-- **Script Include** - application scope, accessibility, client-callable flag, script body.
-- **UI Policy** - application, table, short description, conditions, script body.
-- **UI Action** - application, table, action type, condition, script body.
+- **Business Rule** – application, table, timing, order, active flag, condition, script body.
+- **Client Script** – application, table, trigger type, target field, active flag, script body.
+- **Script Include** – application scope, accessibility, client-callable flag, script body.
+- **UI Policy** – application, table, short description, evaluation conditions, script body.
+- **UI Action** – application, table, action type, conditions, script body.
 
-Each snippet also stores a rich description, the full script, owner email, and timestamps.
+Every snippet records owner email, timestamps, free-form description, source script, and structured metadata tied to its artifact type.
 
 ## Development tips
 
-- `npm run dev` runs the API (nodemon) and React client (Vite) with hot reload.
-- Need server-only changes? Use `npm run dev:server`. Client-only? `npm run dev:client`.
-- The SQLite files inside `data/` can be deleted to reset the environment.
+- `npm run dev` combines nodemon + Vite with hot reload for both tiers.
+- Server-only work? `npm run dev:server`. Client-only? `npm run dev:client`.
+- The glassmorphism theme, button variants, and layout primitives live in `client/src/styles.css`.
+- Highlight.js and Prettier are bundled; consider dynamic imports if you need leaner builds.
+- Delete the SQLite files in `data/` to reset the local dataset.
