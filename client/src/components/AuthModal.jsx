@@ -37,7 +37,10 @@ export function AuthModal({ open, mode, onClose, onSubmit, onToggleMode, error, 
   return (
     <Modal open={open} onClose={onClose} labelledBy="authModalTitle">
       <div className="modal-header">
-        <h2 id="authModalTitle">{labels.title}</h2>
+        <div>
+          <h2 id="authModalTitle">{labels.title}</h2>
+          <p className="modal-subtitle">Collaborate with peers and keep your automation playbook in sync.</p>
+        </div>
         <button type="button" className="icon-button" onClick={onClose} aria-label="Close auth modal">
           &times;
         </button>
@@ -63,14 +66,12 @@ export function AuthModal({ open, mode, onClose, onSubmit, onToggleMode, error, 
             onChange={(event) => setPassword(event.target.value)}
           />
         </label>
-        {error ? (
-          <p className="form-error">{error}</p>
-        ) : null}
+        {error ? <p className="form-error">{error}</p> : null}
         <div className="form-actions">
-          <button type="submit" className="primary" disabled={isSubmitting}>
+          <button type="submit" className="btn btn-gradient" disabled={isSubmitting}>
             {isSubmitting ? 'Working…' : labels.submit}
           </button>
-          <button type="button" className="link" onClick={() => onToggleMode(labels.toggleMode)}>
+          <button type="button" className="btn btn-link" onClick={() => onToggleMode(labels.toggleMode)}>
             {labels.toggle}
           </button>
         </div>

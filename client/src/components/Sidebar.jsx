@@ -8,62 +8,70 @@ export function Sidebar({
 }) {
   return (
     <aside className="sidebar">
-      <div className="sidebar-section">
-        <h2>Snippet Types</h2>
-        <div className="chip-group">
+      <section className="sidebar__section">
+        <div className="sidebar__section-heading">
+          <div>
+            <h2 className="sidebar__title">Snippet Types</h2>
+            <p className="sidebar__subtitle">Focus the gallery by capability</p>
+          </div>
+        </div>
+        <div className="sidebar__filters">
           <button
             type="button"
-            className={`chip ${activeType ? '' : 'active'}`.trim()}
+            className={`filter-chip ${activeType ? '' : 'is-active'}`.trim()}
             onClick={() => onSelectType(null)}
           >
-            All types
+            All snippets
           </button>
           {snippetTypes.map((type) => (
             <button
               key={type.id}
               type="button"
-              className={`chip ${activeType === type.id ? 'active' : ''}`.trim()}
+              className={`filter-chip ${activeType === type.id ? 'is-active' : ''}`.trim()}
               onClick={() => onSelectType(type.id)}
             >
               {type.label}
             </button>
           ))}
         </div>
-      </div>
+      </section>
 
       {isAuthenticated ? (
-        <div className="sidebar-section">
-          <h2>My code snippets</h2>
-          <div className="my-snippets-list">
+        <section className="sidebar__section">
+          <div className="sidebar__section-heading">
+            <div>
+              <h2 className="sidebar__title">My Snippets</h2>
+              <p className="sidebar__subtitle">Quick access to your drafts</p>
+            </div>
+          </div>
+          <div className="sidebar__list">
             {!mySnippets.length ? (
-              <p className="my-snippets-empty">
-                No personal snippets yet. Create one to see it here.
-              </p>
+              <div className="sidebar__empty">No personal snippets yet — create one to save it here.</div>
             ) : (
               mySnippets.map((snippet) => (
                 <button
                   key={snippet.id}
                   type="button"
-                  className="my-snippet-item"
+                  className="sidebar__list-item"
                   onClick={() => onSelectMySnippet(snippet)}
                 >
-                  <span>{snippet.name}</span>
-                  <small>{snippet.typeLabel ?? snippet.type}</small>
+                  <span className="sidebar__list-name">{snippet.name}</span>
+                  <span className="sidebar__list-type">{snippet.typeLabel ?? snippet.type}</span>
                 </button>
               ))
             )}
           </div>
-        </div>
+        </section>
       ) : null}
 
-      <div className="sidebar-section muted">
-        <h3>Quick Tips</h3>
-        <ul>
-          <li>Filter by type to narrow results.</li>
-          <li>Click a card to inspect metadata &amp; script.</li>
-          <li>Authenticated users can create, edit, and delete their snippets.</li>
+      <section className="sidebar__section sidebar__section--tips">
+        <h3 className="sidebar__title">Quick tips</h3>
+        <ul className="sidebar__tips">
+          <li>Mix search and type filters to hone in on the right script.</li>
+          <li>Open a card to inspect metadata, copy the code, or expand full screen.</li>
+          <li>Sign in to curate your personal library of reusable automations.</li>
         </ul>
-      </div>
+      </section>
     </aside>
   );
 }

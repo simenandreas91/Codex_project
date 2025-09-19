@@ -10,57 +10,72 @@ function SnippetCard({
   onDelete
 }) {
   const updatedAt = snippet.updatedAt ? new Date(snippet.updatedAt) : null;
-  const owner = snippet.owner?.email ? ` by ${snippet.owner.email}` : '';
-  const updatedLabel = updatedAt ? `Updated ${updatedAt.toLocaleString()}${owner}` : owner || '';
+  const ownerEmail = snippet.owner?.email ?? '';
+  const ownerLabel = ownerEmail ? ` by ${ownerEmail}` : '';
+  const updatedLabel = updatedAt
+    ? `Updated ${updatedAt.toLocaleString()}${ownerLabel}`
+    : ownerLabel || 'Shared library';
   const scriptPreview = (snippet.script ?? '').trim();
 
   return (
     <article className="snippet-card">
-      <header>
-        <h3>{snippet.name}</h3>
-        <span className="badge">{typeDef?.label ?? snippet.type}</span>
-      </header>
-      {snippet.description ? (
-        <p className="snippet-description">{snippet.description}</p>
-      ) : null}
-
-      {typeDef?.fields?.length ? (
-        <div className="snippet-meta">
-          {typeDef.fields
-            .filter((field) => field.id in (snippet.metadata || {}))
-            .map((field) => {
-              const value = snippet.metadata?.[field.id];
-              if (value === '' || value === null || value === undefined) {
-                return null;
-              }
-              return (
-                <span key={field.id}>
-                  <strong>{field.label}:</strong> {formatFieldValue(field, value)}
-                </span>
-              );
-            })}
-        </div>
-      ) : null}
-
-      {scriptPreview ? <CodeBlock value={scriptPreview} /> : null}
-
-      <div className="snippet-actions">
-        <span className="muted">{updatedLabel}</span>
-        <div className="action-group">
-          <button type="button" className="ghost" onClick={() => onView(snippet)}>
-            View
+      <div className="snippet-card__glow" aria-hidden="true" />
+      <div className="snippet-card__body">
+        <header className="snippet-card__header">
+          <div className="snippet-card__heading">
+            <span className="snippet-card__badge">{typeDef?.label ?? snippet.type}</span>
+            <h3 className="snippet-card__title">{snippet.name}</h3>
+          </div>
+          <button type="button" className="btn btn-ghost" onClick={() => onView(snippet)}>
+            View details
           </button>
-          {isOwner ? (
-            <>
-              <button type="button" className="ghost" onClick={() => onEdit(snippet)}>
-                Edit
-              </button>
-              <button type="button" className="ghost" onClick={() => onDelete(snippet)}>
-                Delete
-              </button>
-            </>
-          ) : null}
-        </div>
+        </header>
+
+        {snippet.description ? (
+          <p className="snippet-card__description">{snippet.description}</p>
+        ) : null}
+
+        {typeDef?.fields?.length ? (
+          <dl className="snippet-card__metadata">
+            {typeDef.fields
+              .filter((field) => field.id in (snippet.metadata || {}))
+              .map((field) => {
+                const value = snippet.metadata?.[field.id];
+                if (value === '' || value === null || value === undefined) {
+                  return null;
+                }
+                return (
+                  <div key={field.id} className="snippet-card__metadata-row">
+                    <dt>{field.label}</dt>
+                    <dd>{formatFieldValue(field, value)}</dd>
+                  </div>
+                );
+              })}
+          </dl>
+        ) : null}
+
+        {scriptPreview ? <CodeBlock value={scriptPreview} className="snippet-card__code" /> : null}
+
+        <footer className="snippet-card__footer">
+          <div className="snippet-card__meta">
+            <span>{updatedLabel}</span>
+          </div>
+          <div className="snippet-card__actions">
+            {isOwner ? (
+              <>
+                <button type="button" className="btn btn-ghost" onClick={() => onEdit(snippet)}>
+                  Edit
+                </button>
+                <button type="button" className="btn btn-ghost" onClick={() => onDelete(snippet)}>
+                  Delete
+                </button>
+              </>
+            ) : null}
+            <button type="button" className="btn btn-elevated" onClick={() => onView(snippet)}>
+              Open snippet
+            </button>
+          </div>
+        </footer>
       </div>
     </article>
   );
@@ -91,8 +106,8 @@ export function SnippetGrid({
     return (
       <div className="snippets-container">
         <div className="empty-state">
-          <h2>Loading snippets…</h2>
-          <p>Please wait a moment.</p>
+          <h2>Fetching curated snippets</h2>
+          <p>Hold tight while we surface automation gold for you.</p>
         </div>
       </div>
     );

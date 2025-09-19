@@ -59,18 +59,29 @@ function App() {
   const [isLoadingSnippets, setLoadingSnippets] = useState(false);
   const [pageError, setPageError] = useState('');
 
-  const statsMessage = useMemo(() => {
-    const count = snippets.length;
-    const parts = [`Showing ${count} snippet${count === 1 ? '' : 's'}`];
-    if (filters.type) {
-      parts.push(`Type: ${snippetTypeMap[filters.type]?.label ?? filters.type}`);
-    }
-    if (filters.q) {
-      parts.push(`Search: "${filters.q}"`);
-    }
-    return parts.join(' • ');
-  }, [snippets, filters, snippetTypeMap]);
+  const statsSummary = useMemo(() => {
+    const data = [
+      {
+        label: 'Available snippets',
+        value: snippets.length.toString().padStart(2, '0')
+      }
+    ];
 
+    if (filters.type) {
+      data.push({
+        label: 'Active type',
+        value: snippetTypeMap[filters.type]?.label ?? filters.type
+      });
+    } else {
+      data.push({ label: 'Active type', value: 'All categories' });
+    }
+
+    if (filters.q) {
+      data.push({ label: 'Search query', value: `“${filters.q}”` });
+    }
+
+    return data;
+  }, [snippets.length, filters, snippetTypeMap]);
   const mySnippetsWithLabels = useMemo(
     () =>
       mySnippets.map((snippet) => ({
@@ -305,7 +316,7 @@ function App() {
         user={user}
       />
 
-      <div className="main-pane">
+      <div className="layout-grid">
         <Sidebar
           snippetTypes={snippetTypes}
           activeType={filters.type}
@@ -315,26 +326,41 @@ function App() {
           isAuthenticated={Boolean(user)}
         />
 
-        <section className="content">
-          <div className="content-header">
-            <div>
-              <h1>Reusable ServiceNow logic</h1>
-              <p className="muted">
-                Browse community-driven Business Rules, Script Includes, Client Scripts, and more.
+        <section className="workspace">
+          <div className="workspace__hero">
+            <div className="workspace__headline">
+              <h1>Reusable ServiceNow blueprints</h1>
+              <p>
+                Discover proven business rules, client scripts, and automation utilities crafted by the
+                community. Remix them into your environments with confidence.
               </p>
             </div>
-            <div className="content-actions">
+            <div className="workspace__cta">
               {user ? (
-                <button type="button" className="primary" onClick={() => handleOpenSnippetModal()}>
-                  New Snippet
+                <button type="button" className="btn btn-gradient" onClick={() => handleOpenSnippetModal()}>
+                  Create snippet
                 </button>
-              ) : null}
+              ) : (
+                <div className="workspace__auth-cta">
+                  <button type="button" className="btn btn-elevated" onClick={() => handleOpenAuth('register')}>
+                    Join &amp; contribute
+                  </button>
+                  <button type="button" className="btn btn-ghost" onClick={() => handleOpenAuth('login')}>
+                    Sign in
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
-          {statsMessage ? (
-            <div className="stats-bar">{statsMessage}</div>
-          ) : null}
+          <div className="workspace__stats">
+            {statsSummary.map((stat) => (
+              <div key={stat.label} className="stat-card">
+                <span className="stat-card__value">{stat.value}</span>
+                <span className="stat-card__label">{stat.label}</span>
+              </div>
+            ))}
+          </div>
 
           <SnippetGrid
             snippets={snippets}
@@ -392,3 +418,5 @@ function App() {
 }
 
 export default App;
+
+

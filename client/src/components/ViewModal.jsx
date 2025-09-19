@@ -35,7 +35,10 @@ export function ViewModal({
   return (
     <Modal open={open} onClose={onClose} labelledBy="viewModalTitle">
       <div className="modal-header">
-        <h2 id="viewModalTitle">{snippet.name}</h2>
+        <div>
+          <h2 id="viewModalTitle">{snippet.name}</h2>
+          <p className="modal-subtitle">Inspect metadata, grab the code, and drop it into your instance.</p>
+        </div>
         <button type="button" className="icon-button" onClick={onClose} aria-label="Close snippet details">
           &times;
         </button>
@@ -72,14 +75,10 @@ export function ViewModal({
           <div className="modal-section-header">
             <h3>Script</h3>
             <div className="script-actions">
-              <button type="button" className="ghost small" onClick={handleCopy}>
+              <button type="button" className="btn btn-ghost" onClick={handleCopy}>
                 {copyLabel}
               </button>
-              <button
-                type="button"
-                className="ghost small"
-                onClick={() => onFullScreen(snippet, formattedScript)}
-              >
+              <button type="button" className="btn btn-elevated" onClick={() => onFullScreen(snippet, formattedScript)}>
                 Full screen
               </button>
             </div>

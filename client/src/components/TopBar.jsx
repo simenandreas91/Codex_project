@@ -12,45 +12,63 @@ export function TopBar({
     onSearchSubmit();
   };
 
+  const userInitial = user?.email?.charAt(0)?.toUpperCase() ?? '';
+
   return (
     <header className="topbar">
-      <div className="brand">
-        <div className="brand-icon" />
-        <div className="brand-text">
-          <span className="title">SN | Snippet Hub</span>
-          <span className="subtitle">Built for ServiceNow devs</span>
+      <div className="topbar__inner">
+        <div className="topbar__brand" role="presentation">
+          <div className="topbar__logo">SN</div>
+          <div className="topbar__meta">
+            <span className="topbar__title">Snippet Hub</span>
+            <span className="topbar__subtitle">ServiceNow automation library</span>
+          </div>
         </div>
-      </div>
-      <form className="topbar-search" onSubmit={handleSubmit}>
-        <input
-          type="search"
-          placeholder="Search snippets by name, description, or script..."
-          autoComplete="off"
-          value={searchValue}
-          onChange={(event) => onSearchChange(event.target.value)}
-        />
-        <button type="submit" aria-label="Search snippets">
-          Search
-        </button>
-      </form>
-      <div className="user-controls">
-        {user ? (
-          <>
-            <span className="chip active">{user.email}</span>
-            <button type="button" className="ghost" onClick={onLogout}>
-              Sign out
-            </button>
-          </>
-        ) : (
-          <>
-            <button type="button" onClick={() => onOpenAuth('login')}>
-              Sign in
-            </button>
-            <button type="button" onClick={() => onOpenRegister('register')}>
-              Register
-            </button>
-          </>
-        )}
+
+        <form className="topbar__search" onSubmit={handleSubmit}>
+          <span className="topbar__search-icon" aria-hidden="true">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="7" />
+              <line x1="20" y1="20" x2="16.65" y2="16.65" />
+            </svg>
+          </span>
+          <input
+            className="topbar__search-input"
+            type="search"
+            placeholder="Search snippets by keywords, metadata, or scripts"
+            autoComplete="off"
+            value={searchValue}
+            onChange={(event) => onSearchChange(event.target.value)}
+          />
+          <button type="submit" className="btn btn-primary" aria-label="Search snippets">
+            Search
+          </button>
+        </form>
+
+        <div className="topbar__actions">
+          {user ? (
+            <div className="topbar__user">
+              <div className="avatar" aria-hidden="true">
+                {userInitial}
+              </div>
+              <div className="topbar__user-meta">
+                <span className="topbar__user-email">{user.email}</span>
+                <button type="button" className="btn btn-ghost" onClick={onLogout}>
+                  Sign out
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="topbar__auth">
+              <button type="button" className="btn btn-ghost" onClick={() => onOpenAuth('login')}>
+                Sign in
+              </button>
+              <button type="button" className="btn btn-elevated" onClick={() => onOpenRegister('register')}>
+                Create account
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );

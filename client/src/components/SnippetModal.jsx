@@ -98,7 +98,9 @@ export function SnippetModal({
 
   useEffect(() => {
     if (!open) return;
-    const initial = buildMetadata(typeDef, snippet?.metadata, { preserve: Boolean(snippet && snippet.type === typeId) });
+    const initial = buildMetadata(typeDef, snippet?.metadata, {
+      preserve: Boolean(snippet && snippet.type === typeId)
+    });
     setMetadata(initial);
   }, [typeDef, typeId, open, snippet]);
 
@@ -132,46 +134,53 @@ export function SnippetModal({
   return (
     <Modal open={open} onClose={onClose} labelledBy="snippetModalTitle">
       <div className="modal-header">
-        <h2 id="snippetModalTitle">{snippet ? 'Edit snippet' : 'New snippet'}</h2>
+        <div>
+          <h2 id="snippetModalTitle">{snippet ? 'Edit snippet' : 'New snippet'}</h2>
+          <p className="modal-subtitle">
+            Capture the essentials, drop in your script, and share a production-ready automation blueprint.
+          </p>
+        </div>
         <button type="button" className="icon-button" onClick={onClose} aria-label="Close snippet modal">
           &times;
         </button>
       </div>
       <form className="modal-body" onSubmit={handleSubmit}>
-        <label className="field">
-          <span>Snippet type</span>
-          <select value={typeId} required onChange={handleTypeChange}>
-            <option value="" disabled>
-              Select a snippet type
-            </option>
-            {snippetTypes.map((type) => (
-              <option key={type.id} value={type.id}>
-                {type.label}
+        <div className="form-grid">
+          <label className="field">
+            <span>Snippet type</span>
+            <select value={typeId} required onChange={handleTypeChange}>
+              <option value="" disabled>
+                Select a snippet type
               </option>
-            ))}
-          </select>
-        </label>
+              {snippetTypes.map((type) => (
+                <option key={type.id} value={type.id}>
+                  {type.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-        <label className="field">
-          <span>Name</span>
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(event) => setName(event.target.value)}
-            placeholder="Meaningful snippet name"
-          />
-        </label>
+          <label className="field">
+            <span>Name</span>
+            <input
+              type="text"
+              required
+              value={name}
+              onChange={(event) => setName(event.target.value)}
+              placeholder="Meaningful snippet name"
+            />
+          </label>
 
-        <label className="field">
-          <span>Description</span>
-          <textarea
-            rows={3}
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder="What problem does this solve?"
-          />
-        </label>
+          <label className="field field--span">
+            <span>Description</span>
+            <textarea
+              rows={3}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="What problem does this solve?"
+            />
+          </label>
+        </div>
 
         <div className="type-specific">
           {typeDef ? (
@@ -218,7 +227,7 @@ export function SnippetModal({
 
               if (field.type === 'textarea') {
                 return (
-                  <label key={field.id} className="field">
+                  <label key={field.id} className="field field--span">
                     <span>{field.label}</span>
                     <textarea rows={3} {...inputProps} />
                   </label>
@@ -242,11 +251,11 @@ export function SnippetModal({
               );
             })
           ) : (
-            <p className="muted">Select a snippet type to configure its key attributes.</p>
+            <p className="empty-hint">Pick a snippet type to surface its signature metadata.</p>
           )}
         </div>
 
-        <label className="field">
+        <label className="field field--span">
           <span>Script</span>
           <textarea
             rows={10}
@@ -259,10 +268,10 @@ export function SnippetModal({
         {error ? <p className="form-error">{error}</p> : null}
 
         <div className="form-actions">
-          <button type="submit" className="primary" disabled={isSubmitting}>
+          <button type="submit" className="btn btn-gradient" disabled={isSubmitting}>
             {isSubmitting ? (snippet ? 'Updating…' : 'Saving…') : snippet ? 'Update snippet' : 'Save snippet'}
           </button>
-          <button type="button" className="ghost" onClick={onClose}>
+          <button type="button" className="btn btn-ghost" onClick={onClose}>
             Cancel
           </button>
         </div>

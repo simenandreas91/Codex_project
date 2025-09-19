@@ -29,9 +29,12 @@ export function ScriptFullscreen({ open, title, script, onClose, onCopy }) {
       <div className="modal-overlay" onClick={onClose} />
       <div className="script-fullscreen" role="dialog" aria-modal="true">
         <div className="script-fullscreen-header">
-          <h2>{title ? `${title} — Script` : 'Script preview'}</h2>
+          <div>
+            <h2>{title ? `${title} — Script` : 'Script preview'}</h2>
+            <p className="modal-subtitle">Formatted output ready for copy &amp; paste into Studio.</p>
+          </div>
           <div className="script-fullscreen-actions">
-            <button type="button" className="ghost small" onClick={() => onCopy(script)}>
+            <button type="button" className="btn btn-ghost" onClick={() => onCopy(script)}>
               Copy
             </button>
             <button type="button" className="icon-button" onClick={onClose} aria-label="Close script full screen">
