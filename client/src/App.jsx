@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import 'highlight.js/styles/github-dark-dimmed.css';
 import './styles.css';
 
@@ -35,6 +35,7 @@ function App() {
   );
 
   const [filters, setFilters] = useState(INITIAL_FILTERS);
+  const filtersRef = useRef(INITIAL_FILTERS);
   const [searchValue, setSearchValue] = useState('');
 
   const [snippets, setSnippets] = useState([]);
@@ -79,24 +80,21 @@ function App() {
     [mySnippets, snippetTypeMap]
   );
 
-  const refreshSnippets = useCallback(
-    async (inputFilters) => {
-      const effectiveFilters = inputFilters ?? filters;
-      setLoadingSnippets(true);
-      try {
-        const data = await fetchSnippets(effectiveFilters);
-        setSnippets(data);
-        setPageError('');
-      } catch (error) {
-        console.error('Failed to load snippets', error);
-        setSnippets([]);
-        setPageError('Unable to load snippets. Please try again later.');
-      } finally {
-        setLoadingSnippets(false);
-      }
-    },
-    [filters]
-  );
+  const refreshSnippets = useCallback(async (inputFilters) => {
+    const effectiveFilters = inputFilters ?? filtersRef.current;
+    setLoadingSnippets(true);
+    try {
+      const data = await fetchSnippets(effectiveFilters);
+      setSnippets(data);
+      setPageError('');
+    } catch (error) {
+      console.error('Failed to load snippets', error);
+      setSnippets([]);
+      setPageError('Unable to load snippets. Please try again later.');
+    } finally {
+      setLoadingSnippets(false);
+    }
+  }, []);
 
   const reloadMySnippets = useCallback(async () => {
     if (!user) {
@@ -111,6 +109,10 @@ function App() {
       setMySnippets([]);
     }
   }, [user]);
+
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
 
   useEffect(() => {
     let cancelled = false;

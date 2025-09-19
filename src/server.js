@@ -124,9 +124,18 @@ app.post('/api/logout', (req, res) => {
 });
 
 app.get('/api/snippets', async (req, res) => {
-  const { q, type } = req.query;
+  const { q, type, owned } = req.query;
   const params = [];
   const filters = [];
+
+  if (owned === 'true') {
+    if (!req.session.userId) {
+      res.status(401).json({ error: 'Authentication required' });
+      return;
+    }
+    params.push(req.session.userId);
+    filters.push('snippets.user_id = ?');
+  }
 
   if (q) {
     const likeQuery = `%${q}%`;
