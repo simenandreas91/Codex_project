@@ -263,6 +263,10 @@ function App() {
     try {
       await deleteSnippet(snippet.id);
       await Promise.all([refreshSnippets(), reloadMySnippets()]);
+      if (viewSnippet?.id === snippet.id) {
+        setViewModalOpen(false);
+        setViewSnippet(null);
+      }
     } catch (error) {
       console.error('Failed to delete snippet', error);
       window.alert('Could not delete snippet. Please try again.');
@@ -307,7 +311,6 @@ function App() {
           activeType={filters.type}
           onSelectType={handleTypeSelect}
           mySnippets={mySnippets}
-          onSelectMySnippet={handleViewSnippet}
           isAuthenticated={Boolean(user)}
         />
 
@@ -341,10 +344,7 @@ function App() {
           <SnippetGrid
             snippets={snippets}
             snippetTypeMap={snippetTypeMap}
-            currentUser={user}
             onViewSnippet={handleViewSnippet}
-            onEditSnippet={handleOpenSnippetModal}
-            onDeleteSnippet={handleDeleteSnippet}
             isLoading={isLoadingSnippets}
             error={pageError}
           />
@@ -380,6 +380,12 @@ function App() {
         onClose={handleCloseViewModal}
         onCopyScript={handleCopyScript}
         onFullScreen={handleOpenFullscreen}
+        onEdit={(snippet) => {
+          handleCloseViewModal();
+          handleOpenSnippetModal(snippet);
+        }}
+        onDelete={handleDeleteSnippet}
+        canManage={Boolean(viewSnippet && user && viewSnippet.owner?.email === user.email)}
       />
 
       <ScriptFullscreen

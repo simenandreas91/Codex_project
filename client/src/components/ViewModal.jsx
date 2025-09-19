@@ -11,7 +11,10 @@ export function ViewModal({
   typeDef,
   onClose,
   onCopyScript,
-  onFullScreen
+  onFullScreen,
+  onEdit,
+  onDelete,
+  canManage
 }) {
   const formattedScript = useMemo(() => formatScript(snippet?.script ?? ''), [snippet]);
   const [copyLabel, setCopyLabel] = useState('Copy script');
@@ -39,9 +42,25 @@ export function ViewModal({
           <h2 id="viewModalTitle">{snippet.name}</h2>
           <p className="modal-subtitle">Inspect metadata, grab the code, and drop it into your instance.</p>
         </div>
-        <button type="button" className="icon-button" onClick={onClose} aria-label="Close snippet details">
-          &times;
-        </button>
+        <div className="modal-header-actions">
+          {canManage ? (
+            <div className="modal-actions-group">
+              <button type="button" className="btn btn-ghost" onClick={() => onEdit?.(snippet)}>
+                Edit
+              </button>
+              <button
+                type="button"
+                className="btn btn-ghost"
+                onClick={() => onDelete?.(snippet)}
+              >
+                Delete
+              </button>
+            </div>
+          ) : null}
+          <button type="button" className="icon-button" onClick={onClose} aria-label="Close snippet details">
+            &times;
+          </button>
+        </div>
       </div>
       <div className="modal-body view-modal">
         <section className="modal-section">

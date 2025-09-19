@@ -491,6 +491,15 @@ textarea {
   box-shadow: 0 28px 48px rgba(15, 18, 40, 0.42);
 }
 
+.snippet-card--compact {
+  cursor: pointer;
+}
+
+.snippet-card--compact:focus-visible {
+  outline: 2px solid rgba(14, 165, 233, 0.7);
+  outline-offset: 4px;
+}
+
 .snippet-card__glow {
   position: absolute;
   inset: -25%;
@@ -547,32 +556,6 @@ textarea {
   font-size: 0.95rem;
 }
 
-.snippet-card__metadata {
-  display: grid;
-  gap: 8px;
-  padding: 14px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(148, 163, 184, 0.18);
-}
-
-.snippet-card__metadata-row {
-  display: grid;
-  grid-template-columns: 120px 1fr;
-  gap: 12px;
-  font-size: 0.85rem;
-}
-
-.snippet-card__metadata-row dt {
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.snippet-card__metadata-row dd {
-  margin: 0;
-  font-weight: 500;
-}
 
 .snippet-card__footer {
   display: flex;
@@ -582,10 +565,6 @@ textarea {
   flex-wrap: wrap;
 }
 
-.snippet-card__meta span {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
 
 .snippet-card__actions {
   display: flex;
@@ -619,6 +598,17 @@ textarea {
   gap: 20px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.15);
   padding-bottom: 16px;
+}
+
+.modal-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.modal-actions-group {
+  display: flex;
+  gap: 10px;
 }
 
 .modal-subtitle {

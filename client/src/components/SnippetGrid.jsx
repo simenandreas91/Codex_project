@@ -1,76 +1,34 @@
-import { formatFieldValue } from '../utils/format';
+function SnippetCard({ snippet, typeDef, onView }) {
+  const handleActivate = () => {
+    onView(snippet);
+  };
 
-function SnippetCard({
-  snippet,
-  typeDef,
-  isOwner,
-  onView,
-  onEdit,
-  onDelete
-}) {
-  const updatedAt = snippet.updatedAt ? new Date(snippet.updatedAt) : null;
-  const ownerEmail = snippet.owner?.email ?? '';
-  const ownerLabel = ownerEmail ? ` by ${ownerEmail}` : '';
-  const updatedLabel = updatedAt
-    ? `Updated ${updatedAt.toLocaleString()}${ownerLabel}`
-    : ownerLabel || 'Shared library';
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault();
+      onView(snippet);
+    }
+  };
+
   return (
-    <article className="snippet-card">
+    <article
+      className="snippet-card snippet-card--compact"
+      role="button"
+      tabIndex={0}
+      onClick={handleActivate}
+      onKeyDown={handleKeyDown}
+      aria-label={'View details for ' + snippet.name}
+    >
       <div className="snippet-card__glow" aria-hidden="true" />
       <div className="snippet-card__body">
-        <header className="snippet-card__header">
-          <div className="snippet-card__heading">
-            <span className="snippet-card__badge">{typeDef?.label ?? snippet.type}</span>
-            <h3 className="snippet-card__title">{snippet.name}</h3>
-          </div>
-          <button type="button" className="btn btn-ghost" onClick={() => onView(snippet)}>
-            View details
-          </button>
-        </header>
+        <div className="snippet-card__heading">
+          <span className="snippet-card__badge">{typeDef?.label ?? snippet.type}</span>
+          <h3 className="snippet-card__title">{snippet.name}</h3>
+        </div>
 
         {snippet.description ? (
           <p className="snippet-card__description">{snippet.description}</p>
         ) : null}
-
-        {typeDef?.fields?.length ? (
-          <dl className="snippet-card__metadata">
-            {typeDef.fields
-              .filter((field) => field.id in (snippet.metadata || {}))
-              .map((field) => {
-                const value = snippet.metadata?.[field.id];
-                if (value === '' || value === null || value === undefined) {
-                  return null;
-                }
-                return (
-                  <div key={field.id} className="snippet-card__metadata-row">
-                    <dt>{field.label}</dt>
-                    <dd>{formatFieldValue(field, value)}</dd>
-                  </div>
-                );
-              })}
-          </dl>
-        ) : null}
-
-        <footer className="snippet-card__footer">
-          <div className="snippet-card__meta">
-            <span>{updatedLabel}</span>
-          </div>
-          <div className="snippet-card__actions">
-            {isOwner ? (
-              <>
-                <button type="button" className="btn btn-ghost" onClick={() => onEdit(snippet)}>
-                  Edit
-                </button>
-                <button type="button" className="btn btn-ghost" onClick={() => onDelete(snippet)}>
-                  Delete
-                </button>
-              </>
-            ) : null}
-            <button type="button" className="btn btn-elevated" onClick={() => onView(snippet)}>
-              Open snippet
-            </button>
-          </div>
-        </footer>
       </div>
     </article>
   );
@@ -79,10 +37,7 @@ function SnippetCard({
 export function SnippetGrid({
   snippets,
   snippetTypeMap,
-  currentUser,
   onViewSnippet,
-  onEditSnippet,
-  onDeleteSnippet,
   isLoading,
   error
 }) {
@@ -127,10 +82,7 @@ export function SnippetGrid({
             key={snippet.id}
             snippet={snippet}
             typeDef={snippetTypeMap[snippet.type]}
-            isOwner={Boolean(currentUser && snippet.owner?.email === currentUser.email)}
             onView={onViewSnippet}
-            onEdit={onEditSnippet}
-            onDelete={onDeleteSnippet}
           />
         ))}
       </div>
