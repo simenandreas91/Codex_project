@@ -25,6 +25,10 @@ body {
   color: var(--text);
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 button,
 input,
 select,
@@ -217,7 +221,13 @@ textarea {
   font-size: 0.8rem;
 }
 
-.my-snippet-item small {\n  color: var(--text-muted);\n  font-size: 0.75rem;\n  pointer-events: none;\n}\n\n.my-snippets-empty {
+.my-snippet-item small {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.my-snippets-empty {
   font-size: 0.85rem;
   color: var(--text-muted);
 }
@@ -414,7 +424,8 @@ textarea {
   border: 1px solid #333;
   border-radius: var(--radius);
   padding: 12px;
-  max-height: 340px;\n  min-height: 220px;
+  max-height: 340px;
+  min-height: 220px;
   overflow: auto;
   font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
   font-size: 0.85rem;
@@ -733,9 +744,30 @@ button.danger:hover {
   align-items: center;
 }
 
-.script-fullscreen .code-block {\n  flex: 1 1 auto;\n  font-size: 0.95rem;\n  padding: 16px;\n  margin: 0;\n  display: flex;\n  flex-direction: column;\n  justify-content: stretch;\n  align-items: stretch;\n  min-height: 0;\n  height: 100%;\n  max-height: none;\n  overflow: hidden;\n}\n
+.script-fullscreen .code-block {
+  flex: 1 1 auto;
+  font-size: 0.95rem;
+  padding: 16px;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: stretch;
+  align-items: stretch;
+  min-height: 0;
+  height: 100%;
+  max-height: none;
+  overflow: hidden;
+}
 
-.script-fullscreen .code-block code {\n  flex: 1 1 auto;\n  display: block;\n  white-space: pre;\n  height: 100%;\n  overflow: auto;\n}\n
+
+.script-fullscreen .code-block code {
+  flex: 1 1 auto;
+  display: block;
+  white-space: pre;
+  height: 100%;
+  overflow: auto;
+}
+
 
 @media (max-width: 720px) {
   .view-meta-row {
@@ -752,6 +784,7 @@ button.danger:hover {
     max-height: 90vh;
   }
 }
+
 
 
 

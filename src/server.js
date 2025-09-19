@@ -3,6 +3,7 @@ import session from 'express-session';
 import connectSqlite3 from 'connect-sqlite3';
 import bcrypt from 'bcryptjs';
 import path from 'path';
+import { existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { run, get, all } from './db.js';
 import { snippetTypes } from './snippetTypes.js';
@@ -13,6 +14,7 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dataDir = path.join(__dirname, '..', 'data');
+const clientDistDir = path.join(__dirname, '..', 'client', 'dist');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -242,8 +244,9 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-const publicDir = path.join(__dirname, '..', 'public');
-app.use(express.static(publicDir));
+if (existsSync(clientDistDir)) {
+  app.use(express.static(clientDistDir));
+}
 
 app.use((req, res, next) => {
   if (req.method !== 'GET') {
@@ -251,7 +254,11 @@ app.use((req, res, next) => {
     return;
   }
 
-  res.sendFile(path.join(publicDir, 'index.html'));
+  if (existsSync(path.join(clientDistDir, 'index.html'))) {
+    res.sendFile(path.join(clientDistDir, 'index.html'));
+  } else {
+    res.status(503).send('Frontend build not found. Run "npm run build:client" to generate it.');
+  }
 });
 
 const PORT = process.env.PORT || 3000;
