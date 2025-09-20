@@ -101,3 +101,14 @@ export async function deleteSnippet(id) {
   });
   return handleResponse(response);
 }
+
+export async function fetchSnippet(id) {
+  if (!id) {
+    throw new Error('Snippet id is required');
+  }
+
+  const response = await fetch(`/api/snippets/${id}`, { credentials: 'include' });
+  return handleResponse(response);
+}
+
+

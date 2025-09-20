@@ -15,6 +15,7 @@ import {
   fetchSession,
   fetchSnippets,
   fetchMySnippets,
+  fetchSnippet,
   login,
   register,
   logout,
@@ -183,7 +184,7 @@ function App() {
     try {
       const action = authMode === 'login' ? login : register;
       const result = await action({ email, password });
-      const authenticatedUser = result?.email ? result : { email };
+      const authenticatedUser = result?.email ? result : { email, isAdmin: false };
       setUser(authenticatedUser);
       setAuthModalOpen(false);
       await Promise.all([refreshSnippets(), reloadMySnippets()]);
@@ -245,10 +246,28 @@ function App() {
     }
   };
 
-  const handleViewSnippet = (snippet) => {
+  const handleViewSnippet = useCallback((snippet) => {
+    if (!snippet) {
+      return;
+    }
+
     setViewSnippet(snippet);
     setViewModalOpen(true);
-  };
+
+    (async () => {
+      try {
+        const fresh = await fetchSnippet(snippet.id);
+        setViewSnippet((current) => {
+          if (!current || current.id !== snippet.id) {
+            return current;
+          }
+          return fresh;
+        });
+      } catch (error) {
+        console.error('Failed to refresh snippet', error);
+      }
+    })();
+  }, [fetchSnippet]);
 
   const handleCloseViewModal = () => {
     setViewModalOpen(false);
@@ -385,7 +404,7 @@ function App() {
           handleOpenSnippetModal(snippet);
         }}
         onDelete={handleDeleteSnippet}
-        canManage={Boolean(viewSnippet && user && viewSnippet.owner?.email === user.email)}
+        canManage={Boolean(viewSnippet && (viewSnippet.canManage || (user && (user.isAdmin || viewSnippet.owner?.email === user.email))))}
       />
 
       <ScriptFullscreen
@@ -400,5 +419,4 @@ function App() {
 }
 
 export default App;
-
 

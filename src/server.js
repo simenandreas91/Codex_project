@@ -16,6 +16,30 @@ const __dirname = path.dirname(__filename);
 const dataDir = path.join(__dirname, '..', 'data');
 const clientDistDir = path.join(__dirname, '..', 'client', 'dist');
 
+const ADMIN_EMAILS = new Set(
+  (process.env.ADMIN_EMAILS ?? 'simenstaabyknudsen@gmail.com')
+    .split(',')
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean)
+);
+
+function isAdminEmail(email) {
+  return ADMIN_EMAILS.has((email ?? '').toLowerCase());
+}
+
+function isAdmin(req) {
+  if (!req.session?.email) {
+    return false;
+  }
+
+  const flag = isAdminEmail(req.session.email);
+  if (req.session.isAdmin !== flag) {
+    req.session.isAdmin = flag;
+  }
+
+  return flag;
+}
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
@@ -28,14 +52,20 @@ app.use(
   })
 );
 
-function sanitizeSnippet(snippet) {
+function sanitizeSnippet(snippet, options = {}) {
   if (!snippet) return null;
+  const { currentUserId, isAdmin } = options;
   let metadata = {};
   try {
     metadata = snippet.metadata ? JSON.parse(snippet.metadata) : {};
   } catch (err) {
     metadata = {};
   }
+
+  const canManage = Boolean(
+    isAdmin || (currentUserId && snippet.user_id === currentUserId)
+  );
+
   return {
     id: snippet.id,
     type: snippet.type,
@@ -45,7 +75,8 @@ function sanitizeSnippet(snippet) {
     metadata,
     createdAt: snippet.created_at,
     updatedAt: snippet.updated_at,
-    owner: snippet.owner_email ? { email: snippet.owner_email } : undefined
+    owner: snippet.owner_email ? { email: snippet.owner_email } : undefined,
+    canManage
   };
 }
 
@@ -70,37 +101,48 @@ app.get('/api/session', (req, res) => {
     res.json({ authenticated: false });
     return;
   }
-  res.json({ authenticated: true, user: { id: req.session.userId, email: req.session.email } });
+
+  const isAdminFlag = isAdminEmail(req.session.email);
+  if (req.session.isAdmin !== isAdminFlag) {
+    req.session.isAdmin = isAdminFlag;
+  }
+
+  res.json({ authenticated: true, user: { id: req.session.userId, email: req.session.email, isAdmin: isAdminFlag } });
 });
 
 app.post('/api/register', async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) {
+  const normalizedEmail = (email ?? '').trim().toLowerCase();
+
+  if (!normalizedEmail || !password) {
     res.status(400).json({ error: 'Email and password are required' });
     return;
   }
 
-  const existing = await findUserByEmail(email);
+  const existing = await findUserByEmail(normalizedEmail);
   if (existing) {
     res.status(409).json({ error: 'User already exists' });
     return;
   }
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const result = await run('INSERT INTO users (email, password_hash) VALUES (?, ?)', [email, passwordHash]);
+  const result = await run('INSERT INTO users (email, password_hash) VALUES (?, ?)', [normalizedEmail, passwordHash]);
   req.session.userId = result.id;
-  req.session.email = email;
-  res.status(201).json({ id: result.id, email });
+  req.session.email = normalizedEmail;
+  req.session.isAdmin = isAdminEmail(normalizedEmail);
+  res.status(201).json({ id: result.id, email: normalizedEmail, isAdmin: req.session.isAdmin });
 });
 
 app.post('/api/login', async (req, res) => {
   const { email, password } = req.body;
-  if (!email || !password) {
+  const normalizedEmail = (email ?? '').trim().toLowerCase();
+
+  if (!normalizedEmail || !password) {
     res.status(400).json({ error: 'Email and password are required' });
     return;
   }
 
-  const user = await findUserByEmail(email);
+  const user = await findUserByEmail(normalizedEmail);
   if (!user) {
     res.status(401).json({ error: 'Invalid credentials' });
     return;
@@ -114,7 +156,8 @@ app.post('/api/login', async (req, res) => {
 
   req.session.userId = user.id;
   req.session.email = user.email;
-  res.json({ id: user.id, email: user.email });
+  req.session.isAdmin = isAdminEmail(user.email);
+  res.json({ id: user.id, email: user.email, isAdmin: req.session.isAdmin });
 });
 
 app.post('/api/logout', (req, res) => {
@@ -158,7 +201,8 @@ app.get('/api/snippets', async (req, res) => {
     params
   );
 
-  res.json(rows.map(sanitizeSnippet));
+  const sessionContext = { currentUserId: req.session.userId, isAdmin: isAdmin(req) };
+  res.json(rows.map((row) => sanitizeSnippet(row, sessionContext)));
 });
 
 app.get('/api/snippets/:id', async (req, res) => {
@@ -175,7 +219,8 @@ app.get('/api/snippets/:id', async (req, res) => {
     return;
   }
 
-  res.json(sanitizeSnippet(snippet));
+  const sessionContext = { currentUserId: req.session.userId, isAdmin: isAdmin(req) };
+  res.json(sanitizeSnippet(snippet, sessionContext));
 });
 
 app.post('/api/snippets', requireAuth, async (req, res) => {
@@ -200,7 +245,8 @@ app.post('/api/snippets', requireAuth, async (req, res) => {
     [result.id]
   );
 
-  res.status(201).json(sanitizeSnippet(created));
+  const sessionContext = { currentUserId: req.session.userId, isAdmin: isAdmin(req) };
+  res.status(201).json(sanitizeSnippet(created, sessionContext));
 });
 
 app.put('/api/snippets/:id', requireAuth, async (req, res) => {
@@ -210,7 +256,7 @@ app.put('/api/snippets/:id', requireAuth, async (req, res) => {
     return;
   }
 
-  if (existing.user_id !== req.session.userId) {
+  if (!isAdmin(req) && existing.user_id !== req.session.userId) {
     res.status(403).json({ error: 'Not allowed to update this snippet' });
     return;
   }
@@ -229,7 +275,8 @@ app.put('/api/snippets/:id', requireAuth, async (req, res) => {
     [req.params.id]
   );
 
-  res.json(sanitizeSnippet(updated));
+  const sessionContext = { currentUserId: req.session.userId, isAdmin: isAdmin(req) };
+  res.json(sanitizeSnippet(updated, sessionContext));
 });
 
 app.delete('/api/snippets/:id', requireAuth, async (req, res) => {
@@ -239,7 +286,7 @@ app.delete('/api/snippets/:id', requireAuth, async (req, res) => {
     return;
   }
 
-  if (existing.user_id !== req.session.userId) {
+  if (!isAdmin(req) && existing.user_id !== req.session.userId) {
     res.status(403).json({ error: 'Not allowed to delete this snippet' });
     return;
   }

@@ -31,7 +31,7 @@ export const snippetTypes = [
         label: 'Type',
         type: 'select',
         required: true,
-        options: ['onLoad', 'onChange', 'onSubmit', 'onCellEdit']
+        options: ['onLoad', 'onChange', 'onSubmit', 'onCellEdit', 'Unspecified']
       },
       { id: 'field', label: 'Target field (if applicable)', type: 'text', placeholder: 'assignment_group' },
       { id: 'active', label: 'Active', type: 'checkbox', defaultValue: true }
@@ -74,8 +74,54 @@ export const snippetTypes = [
       { id: 'showInsert', label: 'Show insert', type: 'checkbox', defaultValue: true },
       { id: 'showUpdate', label: 'Show update', type: 'checkbox', defaultValue: true },
       { id: 'client', label: 'Client-side', type: 'checkbox', defaultValue: false },
+      { id: 'formLink', label: 'Form link', type: 'checkbox', defaultValue: false },
+      { id: 'onClick', label: 'Onclick', type: 'text', placeholder: 'runMyAction();' },
       { id: 'condition', label: 'Condition', type: 'textarea', placeholder: 'current.active == true' }
+    ]
+  },
+  {
+    id: 'scheduled_job',
+    label: 'Scheduled Job',
+    description: 'Time-based server automation executed by the scheduler.',
+    fields: [
+      { id: 'application', label: 'Application', type: 'text', required: true, placeholder: 'Global' },
+      { id: 'runFrequency', label: 'Run frequency', type: 'text', placeholder: 'Daily at 02:00' },
+      { id: 'runAs', label: 'Run as user', type: 'text', placeholder: 'system' },
+      { id: 'active', label: 'Active', type: 'checkbox', defaultValue: true },
+      { id: 'condition', label: 'Filter / condition', type: 'textarea', placeholder: 'state=active' }
+    ]
+  },
+  {
+    id: 'inbound_action',
+    label: 'Inbound Action',
+    description: 'Email handlers triggered by inbound messages.',
+    fields: [
+      { id: 'application', label: 'Application', type: 'text', required: true, placeholder: 'Global' },
+      { id: 'targetTable', label: 'Target table', type: 'text', placeholder: 'incident' },
+      {
+        id: 'type',
+        label: 'Type',
+        type: 'select',
+        options: ['New', 'Reply', 'Forward', 'Unspecified'],
+        required: false
+      },
+      { id: 'stopProcessing', label: 'Stop processing', type: 'checkbox', defaultValue: false },
+      { id: 'active', label: 'Active', type: 'checkbox', defaultValue: true },
+      { id: 'condition', label: 'Condition', type: 'textarea', placeholder: 'subjectLIKE"Out of office"' }
+    ]
+  },
+  {
+    id: 'fix_script',
+    label: 'Fix Script',
+    description: 'One-off maintenance utilities executed from Scripts - Fix.',
+    fields: [
+      { id: 'application', label: 'Application', type: 'text', required: true, placeholder: 'Global' },
+      { id: 'runContext', label: 'Intended context', type: 'text', placeholder: 'Post-clone' },
+      { id: 'notes', label: 'Notes', type: 'textarea', placeholder: 'Impacts production data. Test before running.' }
     ]
   }
 ];
+
+
+
 
