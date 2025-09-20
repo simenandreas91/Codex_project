@@ -12,7 +12,8 @@
     "build": "npm --prefix client run build",
     "build:client": "npm --prefix client run build",
     "preview": "npm --prefix client run preview",
-    "postinstall": "npm --prefix client install"
+    "postinstall": "npm --prefix client install",
+    "import:business-rules": "node scripts/importBusinessRules.js"
   },
   "keywords": [
     "servicenow",

@@ -11,7 +11,7 @@ export const snippetTypes = [
         label: 'When to run',
         type: 'select',
         required: true,
-        options: ['before', 'after', 'async']
+        options: ['before', 'after', 'async', 'display']
       },
       { id: 'order', label: 'Order', type: 'number', placeholder: '100' },
       { id: 'active', label: 'Active', type: 'checkbox', defaultValue: true },
@@ -78,3 +78,4 @@ export const snippetTypes = [
     ]
   }
 ];
+
