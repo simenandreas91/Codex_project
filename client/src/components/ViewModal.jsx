@@ -3,7 +3,7 @@ import { Modal } from './Modal';
 import { CodeBlock } from './CodeBlock';
 import { formatFieldValue, formatScript } from '../utils/format';
 
-const SKIPPED_FIELDS = new Set(['active']);
+const SKIPPED_FIELDS = new Set(['active', 'html_template', 'css', 'client_script', 'server_script']);
 
 export function ViewModal({
   open,
@@ -90,20 +90,63 @@ export function ViewModal({
           </div>
         </section>
 
-        <section className="modal-section script-section">
-          <div className="modal-section-header">
-            <h3>Script</h3>
-            <div className="script-actions">
-              <button type="button" className="btn btn-ghost" onClick={handleCopy}>
-                {copyLabel}
-              </button>
-              <button type="button" className="btn btn-elevated" onClick={() => onFullScreen(snippet, formattedScript)}>
-                Full screen
-              </button>
-            </div>
+        {snippet.type === 'service_portal_widget' ? (
+          <div className="widget-sections">
+            {[
+              { key: 'html_template', label: 'HTML Template', language: 'xml' },
+              { key: 'css', label: 'CSS/SCSS', language: 'css' },
+              { key: 'client_script', label: 'Client Script', language: 'javascript' },
+              { key: 'server_script', label: 'Server Script', language: 'javascript' }
+            ].map(({ key, label, language }) => {
+              const content = snippet.metadata?.[key];
+              if (!content) return null;
+              const formatted = formatScript(content);
+              return (
+                <section key={key} className="modal-section script-section">
+                  <div className="modal-section-header">
+                    <h3>{label}</h3>
+                    <div className="script-actions">
+                      <button
+                        type="button"
+                        className="btn btn-ghost"
+                        onClick={async () => {
+                          await onCopyScript(formatted);
+                          setCopyLabel('Copied!');
+                          setTimeout(() => setCopyLabel('Copy'), 2000);
+                        }}
+                      >
+                        {copyLabel}
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-elevated"
+                        onClick={() => onFullScreen(snippet, formatted)}
+                      >
+                        Full screen
+                      </button>
+                    </div>
+                  </div>
+                  <CodeBlock value={formatted} language={language} />
+                </section>
+              );
+            })}
           </div>
-          <CodeBlock value={formattedScript} />
-        </section>
+        ) : (
+          <section className="modal-section script-section">
+            <div className="modal-section-header">
+              <h3>Script</h3>
+              <div className="script-actions">
+                <button type="button" className="btn btn-ghost" onClick={handleCopy}>
+                  {copyLabel}
+                </button>
+                <button type="button" className="btn btn-elevated" onClick={() => onFullScreen(snippet, formattedScript)}>
+                  Full screen
+                </button>
+              </div>
+            </div>
+            <CodeBlock value={formattedScript} />
+          </section>
+        )}
       </div>
     </Modal>
   );
