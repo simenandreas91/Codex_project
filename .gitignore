@@ -13,3 +13,4 @@ client/dist/
 .DS_Store
 *.log
 *.temp
+tmp/
