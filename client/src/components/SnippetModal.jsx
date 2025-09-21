@@ -45,6 +45,10 @@ function normalizeMetadata(typeDef, metadataState) {
       return;
     }
     const rawValue = metadataState[field.id];
+    if (field.id === 'filterCondition') {
+      normalized[field.id] = rawValue;
+      return;
+    }
     if (field.type === 'checkbox') {
       normalized[field.id] = Boolean(rawValue);
       return;
@@ -83,6 +87,8 @@ export function SnippetModal({
   const [script, setScript] = useState('');
   const [metadata, setMetadata] = useState({});
 
+  const commonOperators = ['=', '!=', 'IN', 'NOT IN', 'LIKE', 'STARTSWITH', 'ENDSWITH', 'ISNULL', 'ISNOTNULL'];
+
   useEffect(() => {
     if (!open) return;
     const initialType = snippet?.type ?? defaultType ?? snippetTypes[0]?.id ?? '';
@@ -98,9 +104,12 @@ export function SnippetModal({
 
   useEffect(() => {
     if (!open) return;
-    const initial = buildMetadata(typeDef, snippet?.metadata, {
+    let initial = buildMetadata(typeDef, snippet?.metadata, {
       preserve: Boolean(snippet && snippet.type === typeId)
     });
+    if (typeId === 'business_rule' && !initial.filterCondition) {
+      initial.filterCondition = [];
+    }
     setMetadata(initial);
   }, [typeDef, typeId, open, snippet]);
 
@@ -113,6 +122,28 @@ export function SnippetModal({
 
   const handleMetadataChange = (field, value) => {
     setMetadata((prev) => ({ ...prev, [field.id]: value }));
+  };
+
+  const updateCondition = (index, key, value) => {
+    setMetadata((prev) => {
+      const newConditions = [...(prev.filterCondition || [])];
+      newConditions[index] = { ...newConditions[index], [key]: value };
+      return { ...prev, filterCondition: newConditions };
+    });
+  };
+
+  const addCondition = () => {
+    setMetadata((prev) => ({
+      ...prev,
+      filterCondition: [...(prev.filterCondition || []), { field: '', operator: '', value: '', connector: 'AND' }]
+    }));
+  };
+
+  const removeCondition = (index) => {
+    setMetadata((prev) => {
+      const newConditions = (prev.filterCondition || []).filter((_, i) => i !== index);
+      return { ...prev, filterCondition: newConditions };
+    });
   };
 
   const handleSubmit = (event) => {
@@ -147,7 +178,15 @@ export function SnippetModal({
       script = scriptNode.textContent?.trim() || '';
     }
     const filterConditionNode = sysScript.querySelector('filter_condition');
-    const filterCondition = filterConditionNode?.textContent?.trim() || '';
+    const items = filterConditionNode?.querySelectorAll('item') || [];
+    const filterConditions = Array.from(items)
+      .filter(item => item.getAttribute('field') !== '')
+      .map(item => ({
+        field: item.getAttribute('field') || '',
+        operator: item.getAttribute('operator') || '=',
+        value: item.getAttribute('value') || '',
+        connector: item.getAttribute('or') === 'true' ? 'OR' : 'AND'
+      }));
 
     const metadata = {
       application: sysScript.querySelector('sys_domain')?.textContent?.trim() || 'Global',
@@ -156,7 +195,7 @@ export function SnippetModal({
       order: parseInt(sysScript.querySelector('order')?.textContent || '100', 10),
       active: sysScript.querySelector('active')?.textContent === 'true',
       condition: sysScript.querySelector('condition')?.textContent?.trim() || '',
-      filterCondition: filterCondition,
+      filterCondition: filterConditions,
     };
 
     return { typeId, name, description, script, metadata };
@@ -293,6 +332,72 @@ export function SnippetModal({
                         </option>
                       ))}
                     </select>
+                  </label>
+                );
+              }
+
+              if (field.id === 'filterCondition' && typeId === 'business_rule') {
+                return (
+                  <label key={field.id} className="field field--span">
+                    <span>{field.label}</span>
+                    <div className="filter-conditions">
+                      {(metadata.filterCondition || []).length === 0 ? (
+                        <p>No conditions added.</p>
+                      ) : (
+                        metadata.filterCondition.map((cond, index) => (
+                          <div key={index} className="condition-row" style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', alignItems: 'center' }}>
+                            <input
+                              type="text"
+                              value={cond.field || ''}
+                              placeholder="Field"
+                              onChange={(e) => updateCondition(index, 'field', e.target.value)}
+                              style={{ flex: 1 }}
+                            />
+                            <select
+                              value={cond.operator || ''}
+                              onChange={(e) => updateCondition(index, 'operator', e.target.value)}
+                              style={{ minWidth: '80px' }}
+                            >
+                              <option value="">Op</option>
+                              {commonOperators.map((op) => (
+                                <option key={op} value={op}>{op}</option>
+                              ))}
+                            </select>
+                            <input
+                              type="text"
+                              value={cond.value || ''}
+                              placeholder="Value"
+                              onChange={(e) => updateCondition(index, 'value', e.target.value)}
+                              style={{ flex: 2 }}
+                            />
+                            {index > 0 && (
+                              <select
+                                value={cond.connector || 'AND'}
+                                onChange={(e) => updateCondition(index, 'connector', e.target.value)}
+                                style={{ minWidth: '60px' }}
+                              >
+                                <option value="AND">AND</option>
+                                <option value="OR">OR</option>
+                              </select>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => removeCondition(index)}
+                              style={{ background: 'red', color: 'white', border: 'none', padding: '0.25rem 0.5rem', cursor: 'pointer' }}
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        ))
+                      )}
+                      <button
+                        type="button"
+                        onClick={addCondition}
+                        style={{ marginTop: '0.5rem', background: 'blue', color: 'white', border: 'none', padding: '0.25rem 0.5rem', cursor: 'pointer' }}
+                      >
+                        Add Condition
+                      </button>
+                    </div>
                   </label>
                 );
               }
