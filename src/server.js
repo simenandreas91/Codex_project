@@ -213,7 +213,7 @@ app.get('/api/snippets', async (req, res) => {
   const rowsQuery = [
     'SELECT snippets.*, users.email AS owner_email',
     'FROM snippets',
-    'JOIN users ON users.id = snippets.user_id',
+    'LEFT JOIN users ON users.id = snippets.user_id',
     whereClause,
     'ORDER BY snippets.updated_at DESC',
     'LIMIT ? OFFSET ?'
@@ -237,7 +237,7 @@ app.get('/api/snippets/:id', async (req, res) => {
   const snippet = await get(
     `SELECT snippets.*, users.email AS owner_email
      FROM snippets
-     JOIN users ON users.id = snippets.user_id
+     LEFT JOIN users ON users.id = snippets.user_id
      WHERE snippets.id = ?`,
     [req.params.id]
   );
@@ -269,7 +269,7 @@ app.post('/api/snippets', requireAuth, async (req, res) => {
 
   const created = await get(
     `SELECT snippets.*, users.email AS owner_email
-     FROM snippets JOIN users ON users.id = snippets.user_id WHERE snippets.id = ?`,
+     FROM snippets LEFT JOIN users ON users.id = snippets.user_id WHERE snippets.id = ?`,
     [result.id]
   );
 
@@ -299,7 +299,7 @@ app.put('/api/snippets/:id', requireAuth, async (req, res) => {
 
   const updated = await get(
     `SELECT snippets.*, users.email AS owner_email
-     FROM snippets JOIN users ON users.id = snippets.user_id WHERE snippets.id = ?`,
+     FROM snippets LEFT JOIN users ON users.id = snippets.user_id WHERE snippets.id = ?`,
     [req.params.id]
   );
 
@@ -349,12 +349,3 @@ const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`CodeSnipNow listening on http://localhost:${PORT}`);
 });
-
-
-
-
-
-
-
-
-
