@@ -68,6 +68,12 @@ const CATEGORY_CONFIG = [
     type: 'catalog_client_script',
     directory: 'Catalog Client Script',
     buildMetadata: buildCatalogClientScriptMetadata
+  },
+  {
+    label: 'Background Scripts',
+    type: 'background_script',
+    directory: 'Background Scripts',
+    buildMetadata: buildFixScriptMetadata
   }
 ];
 

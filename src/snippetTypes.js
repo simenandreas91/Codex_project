@@ -162,5 +162,14 @@ export const snippetTypes = [
       { id: 'ui_policy', label: 'UI Policy', type: 'checkbox', defaultValue: false },
       { id: 'active', label: 'Active', type: 'checkbox', defaultValue: true }
     ]
+  },
+  {
+    id: 'background_script',
+    label: 'Background Script',
+    description: 'One-off scripts executed in Scripts - Background for testing or maintenance.',
+    fields: [
+      { id: 'application', label: 'Application', type: 'text', required: true, placeholder: 'Global' },
+      { id: 'notes', label: 'Notes', type: 'textarea', placeholder: 'Run in background for testing GlideRecord queries.' }
+    ]
   }
 ];
