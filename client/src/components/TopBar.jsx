@@ -18,10 +18,10 @@ export function TopBar({
     <header className="topbar">
       <div className="topbar__inner">
         <div className="topbar__brand" role="presentation">
-          <div className="topbar__logo">SN</div>
+          <img className="topbar__logo" src="/codesnipnow-mark.svg" alt="CodeSnipNow logo" width="48" height="48" />
           <div className="topbar__meta">
-            <span className="topbar__title">Snippet Hub</span>
-            <span className="topbar__subtitle">ServiceNow automation library</span>
+            <span className="topbar__title">CodeSnipNow</span>
+            <span className="topbar__subtitle">Instant ServiceNow snippet library</span>
           </div>
         </div>
 

@@ -377,10 +377,9 @@ function App() {
         <section className="workspace">
           <div className="workspace__hero">
             <div className="workspace__headline">
-              <h1>Reusable ServiceNow blueprints</h1>
+              <h1>CodeSnipNow for ServiceNow builders</h1>
               <p>
-                Discover proven business rules, client scripts, and automation utilities crafted by the
-                community. Remix them into your environments with confidence.
+                CodeSnipNow curates proven business rules, client scripts, and automation utilities so your team can ship platform changes faster.
               </p>
             </div>
             <div className="workspace__cta">

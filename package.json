@@ -1,7 +1,7 @@
 {
-  "name": "servicenow-snippet-hub",
+  "name": "codesnipnow",
   "version": "1.0.0",
-  "description": "VS Code-inspired snippet sharing hub for ServiceNow developers",
+  "description": "CodeSnipNow snippet sharing hub for ServiceNow teams",
   "main": "src/server.js",
   "type": "module",
   "scripts": {

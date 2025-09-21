@@ -347,7 +347,7 @@ app.use((req, res, next) => {
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-  console.log(`ServiceNow Snippet Hub listening on http://localhost:${PORT}`);
+  console.log(`CodeSnipNow listening on http://localhost:${PORT}`);
 });
 
 

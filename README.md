@@ -1,20 +1,22 @@
-# ServiceNow Snippet Hub
+# CodeSnipNow
 
-A modern ServiceNow snippet catalog powered by React, Vite, Express, and SQLite. Design-driven glassmorphism surfaces, code-highlighting, and componentized flows make it effortless for teams to publish, search, and reuse artifacts such as Business Rules, Client Scripts, Script Includes, UI Policies, UI Actions, and more.
+![CodeSnipNow logo](client/public/codesnipnow-mark.svg)
 
-## Features
+CodeSnipNow is a modern ServiceNow snippet catalog powered by React, Vite, Express, and SQLite. A glassmorphism-inspired interface, lightning search, and guided publishing flows make it effortless for platform teams to capture, browse, and reuse their automation blueprints.
 
-- Instant search over names, descriptions, metadata, and script bodies.
-- Type-specific creation flows with rich metadata capture for every artifact.
-- React + hooks architecture with modal wizardry, fullscreen script viewer, and highlight.js-powered previews.
-- Glassmorphism-inspired UI shell with responsive layout, stats rail, and glowing snippet cards.
-- Express + SQLite backend with session-backed auth (email/password) and owner-scoped filtering.
+## Highlights
+
+- Blazingly fast search across titles, metadata, and script bodies.
+- Guided creation flows tailored to every ServiceNow artifact type.
+- React + hooks architecture with modal wizards, fullscreen script viewer, and highlight.js previews.
+- Glassmorphism UI shell with responsive layout, stat rail, and glowing snippet cards.
+- Express + SQLite backend with session-backed auth and owner-scoped filtering.
 - Anonymous browsing, owner-only editing, and curated "My snippets" shortcuts.
 
 ## Getting started
 
 ```bash
-npm install           # installs server dependencies and bootstraps client via postinstall
+npm install           # installs server deps and bootstraps the client via postinstall
 npm run dev           # runs the Express API (nodemon) + Vite dev server together
 ```
 
@@ -41,11 +43,11 @@ package.json      # Backend scripts orchestrating dev/build/start
 
 ## Snippet types & captured fields
 
-- **Business Rule** – application, table, timing, order, active flag, condition, script body.
-- **Client Script** – application, table, trigger type, target field, active flag, script body.
-- **Script Include** – application scope, accessibility, client-callable flag, script body.
-- **UI Policy** – application, table, short description, evaluation conditions, script body.
-- **UI Action** – application, table, action type, conditions, script body.
+- **Business Rule** - application, table, timing, order, active flag, condition, script body.
+- **Client Script** - application, table, trigger type, target field, active flag, script body.
+- **Script Include** - application scope, accessibility, client-callable flag, script body.
+- **UI Policy** - application, table, short description, evaluation conditions, script body.
+- **UI Action** - application, table, action type, conditions, script body.
 
 Every snippet records owner email, timestamps, free-form description, source script, and structured metadata tied to its artifact type.
 
@@ -53,6 +55,6 @@ Every snippet records owner email, timestamps, free-form description, source scr
 
 - `npm run dev` combines nodemon + Vite with hot reload for both tiers.
 - Server-only work? `npm run dev:server`. Client-only? `npm run dev:client`.
-- The glassmorphism theme, button variants, and layout primitives live in `client/src/styles.css`.
-- Highlight.js and Prettier are bundled; consider dynamic if you need leaner builds.
+- The CodeSnipNow design system (glass panels, buttons, gradients) lives in `client/src/styles.css`.
+- Highlight.js and Prettier are bundled; consider dynamic imports if you need leaner builds.
 - Delete the SQLite files in `data/` to reset the local dataset.
