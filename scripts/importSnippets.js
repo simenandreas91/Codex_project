@@ -56,6 +56,12 @@ const CATEGORY_CONFIG = [
     directory: 'Service Portal Widgets',
     buildMetadata: buildWidgetMetadata,
     readFiles: readWidgetFiles
+  },
+  {
+    label: 'Mail Scripts',
+    type: 'mail_script',
+    directory: 'Mail Scripts',
+    buildMetadata: buildMailScriptMetadata
   }
 ];
 
@@ -402,6 +408,20 @@ function buildWidgetMetadata({ readme, widgetFiles, directorySegments }) {
   if (widgetFiles.server) metadata.server_script = widgetFiles.server.content;
 
   return metadata;
+}
+
+function buildMailScriptMetadata({ readme, scriptContent, scriptFiles, directorySegments }) {
+  const map = parseKeyValueMap(readme);
+  const application = detectApplication(map, readme) || 'Global';
+  const tableValue = getValue(map, ['table']) ?? extractTableFromText(readme) ?? extractTableFromText(scriptContent);
+  const table = normalizeTableValue(tableValue) || 'incident';
+  const active = parseBoolean(getValue(map, ['active']), true);
+
+  return {
+    application,
+    table,
+    active
+  };
 }
 
 async function ensureOwner(email, password) {

@@ -134,5 +134,15 @@ export const snippetTypes = [
       { id: 'client_script', label: 'Client Script', type: 'textarea', placeholder: 'function($scope) { $scope.data = {}; }' },
       { id: 'server_script', label: 'Server Script', type: 'textarea', placeholder: 'data.myData = {};' }
     ]
+  },
+  {
+    id: 'mail_script',
+    label: 'Mail Script',
+    description: 'Server-side scripts that customize email notifications in ServiceNow.',
+    fields: [
+      { id: 'application', label: 'Application', type: 'text', required: true, placeholder: 'Global' },
+      { id: 'table', label: 'Table', type: 'text', required: true, placeholder: 'incident' },
+      { id: 'active', label: 'Active', type: 'checkbox', defaultValue: true }
+    ]
   }
 ];
