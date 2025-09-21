@@ -1,17 +1,11 @@
 [build]
-  command = "npm run build"
-  publish = "dist"
+  command = "cd client && npm run build"
+  publish = "client/dist"
+
+[functions]
+  directory = "netlify/functions"
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-
-[functions]
-  node_bundler = "esbuild"
-
-[functions."snippet-types"]
-  included_files = ["src/snippetTypes.js"]
-
-[functions."snippets"]
-  included_files = ["data/snippets.json"]
