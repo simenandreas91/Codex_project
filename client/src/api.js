@@ -22,12 +22,12 @@ async function handleResponse(response) {
 }
 
 export async function fetchSnippetTypes() {
-  const response = await fetch('/api/snippet-types', { credentials: 'include' });
+  const response = await fetch('/.netlify/functions/snippet-types', { credentials: 'include' });
   return handleResponse(response);
 }
 
 export async function fetchSession() {
-  const response = await fetch('/api/session', { credentials: 'include' });
+  const response = await fetch('/.netlify/functions/session', { credentials: 'include' });
   return handleResponse(response);
 }
 
@@ -42,7 +42,7 @@ export async function fetchSnippets({ q, type, owned, page, limit } = {}) {
   if (page) params.set('page', String(page));
   if (limit) params.set('limit', String(limit));
   const query = params.toString();
-  const url = query ? `/api/snippets?${query}` : '/api/snippets';
+  const url = query ? `/.netlify/functions/snippets?${query}` : '/.netlify/functions/snippets';
   const response = await fetch(url, { credentials: 'include' });
   return handleResponse(response);
 }
@@ -56,7 +56,7 @@ export async function fetchMySnippets(limit = 100) {
 }
 
 export async function register(payload) {
-  const response = await fetch('/api/register', {
+  const response = await fetch('/.netlify/functions/register', {
     method: 'POST',
     headers: JSON_HEADERS,
     credentials: 'include',
@@ -66,7 +66,7 @@ export async function register(payload) {
 }
 
 export async function login(payload) {
-  const response = await fetch('/api/login', {
+  const response = await fetch('/.netlify/functions/login', {
     method: 'POST',
     headers: JSON_HEADERS,
     credentials: 'include',
@@ -76,7 +76,7 @@ export async function login(payload) {
 }
 
 export async function logout() {
-  const response = await fetch('/api/logout', {
+  const response = await fetch('/.netlify/functions/logout', {
     method: 'POST',
     credentials: 'include'
   });
@@ -84,7 +84,7 @@ export async function logout() {
 }
 
 export async function createSnippet(payload) {
-  const response = await fetch('/api/snippets', {
+  const response = await fetch('/.netlify/functions/snippets', {
     method: 'POST',
     headers: JSON_HEADERS,
     credentials: 'include',
@@ -94,7 +94,7 @@ export async function createSnippet(payload) {
 }
 
 export async function updateSnippet(id, payload) {
-  const response = await fetch(`/api/snippets/${id}`, {
+  const response = await fetch(`/.netlify/functions/snippets/${id}`, {
     method: 'PUT',
     headers: JSON_HEADERS,
     credentials: 'include',
@@ -104,7 +104,7 @@ export async function updateSnippet(id, payload) {
 }
 
 export async function deleteSnippet(id) {
-  const response = await fetch(`/api/snippets/${id}`, {
+  const response = await fetch(`/.netlify/functions/snippets/${id}`, {
     method: 'DELETE',
     credentials: 'include'
   });
@@ -116,8 +116,6 @@ export async function fetchSnippet(id) {
     throw new Error('Snippet id is required');
   }
 
-  const response = await fetch(`/api/snippets/${id}`, { credentials: 'include' });
+  const response = await fetch(`/.netlify/functions/snippets/${id}`, { credentials: 'include' });
   return handleResponse(response);
 }
-
-

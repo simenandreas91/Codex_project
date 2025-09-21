@@ -14,3 +14,6 @@ client/dist/
 *.log
 *.temp
 tmp/
+
+# Data files
+data/sessions.sqlite
