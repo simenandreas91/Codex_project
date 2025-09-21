@@ -25,7 +25,9 @@ import {
 } from './api';
 import { copyToClipboard } from './utils/clipboard';
 
-const INITIAL_FILTERS = { q: '', type: null };
+const DEFAULT_PAGE_SIZE = 12;
+
+const INITIAL_FILTERS = { q: '', type: null, page: 1, limit: DEFAULT_PAGE_SIZE };
 
 function App() {
   const [user, setUser] = useState(null);
@@ -41,6 +43,7 @@ function App() {
 
   const [snippets, setSnippets] = useState([]);
   const [mySnippets, setMySnippets] = useState([]);
+  const [pagination, setPagination] = useState({ page: INITIAL_FILTERS.page, totalPages: 1, total: 0, limit: INITIAL_FILTERS.limit });
 
   const [isAuthModalOpen, setAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login');
@@ -69,9 +72,11 @@ function App() {
 
   const refreshSnippets = useCallback(async (inputFilters) => {
     const effectiveFilters = inputFilters ?? filtersRef.current;
+    const page = effectiveFilters.page ?? 1;
+    const limit = effectiveFilters.limit ?? DEFAULT_PAGE_SIZE;
     setLoadingSnippets(true);
     try {
-      const options = {};
+      const options = { page, limit };
       if (effectiveFilters.q) {
         options.q = effectiveFilters.q;
       }
@@ -82,11 +87,35 @@ function App() {
       }
 
       const data = await fetchSnippets(options);
-      setSnippets(data);
+      const items = Array.isArray(data?.items) ? data.items : Array.isArray(data) ? data : [];
+      setSnippets(items);
+      const meta = data?.pagination ?? {};
+      const resolvedPage = meta.page ?? page;
+      const resolvedLimit = meta.limit ?? limit;
+      setPagination({
+        page: resolvedPage,
+        totalPages: meta.totalPages ?? 1,
+        total: meta.total ?? items.length,
+        limit: resolvedLimit
+      });
+      if ((effectiveFilters.page ?? 1) !== resolvedPage || (effectiveFilters.limit ?? DEFAULT_PAGE_SIZE) !== resolvedLimit) {
+        setFilters((prev) => ({
+          ...prev,
+          page: resolvedPage,
+          limit: resolvedLimit
+        }));
+      }
       setPageError('');
     } catch (error) {
       console.error('Failed to load snippets', error);
       setSnippets([]);
+      setPagination((prev) => ({
+        page,
+        totalPages: 1,
+        total: 0,
+        limit: prev?.limit ?? limit
+      }));
+      setFilters((prev) => ({ ...prev, page }));
       setPageError('Unable to load snippets. Please try again later.');
     } finally {
       setLoadingSnippets(false);
@@ -152,13 +181,25 @@ function App() {
   }, [user, reloadMySnippets]);
 
   const handleSearchSubmit = () => {
-    const nextFilters = { ...filters, q: searchValue.trim() };
+    const nextFilters = { ...filters, q: searchValue.trim(), page: 1 };
     setFilters(nextFilters);
     refreshSnippets(nextFilters);
   };
 
   const handleTypeSelect = (typeId) => {
-    const nextFilters = { ...filters, type: typeId };
+    const nextFilters = { ...filters, type: typeId, page: 1 };
+    setFilters(nextFilters);
+    refreshSnippets(nextFilters);
+  };
+
+  const handlePageChange = (nextPage) => {
+    const totalPages = pagination.totalPages ?? 1;
+    const currentPage = pagination.page ?? 1;
+    const targetPage = Math.min(Math.max(1, nextPage), Math.max(1, totalPages));
+    if (targetPage === currentPage || isLoadingSnippets) {
+      return;
+    }
+    const nextFilters = { ...filters, page: targetPage };
     setFilters(nextFilters);
     refreshSnippets(nextFilters);
   };
@@ -366,6 +407,8 @@ function App() {
             onViewSnippet={handleViewSnippet}
             isLoading={isLoadingSnippets}
             error={pageError}
+            pagination={pagination}
+            onPageChange={handlePageChange}
           />
         </section>
       </div>
@@ -419,4 +462,3 @@ function App() {
 }
 
 export default App;
-

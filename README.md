@@ -54,5 +54,5 @@ Every snippet records owner email, timestamps, free-form description, source scr
 - `npm run dev` combines nodemon + Vite with hot reload for both tiers.
 - Server-only work? `npm run dev:server`. Client-only? `npm run dev:client`.
 - The glassmorphism theme, button variants, and layout primitives live in `client/src/styles.css`.
-- Highlight.js and Prettier are bundled; consider dynamic imports if you need leaner builds.
+- Highlight.js and Prettier are bundled; consider dynamic if you need leaner builds.
 - Delete the SQLite files in `data/` to reset the local dataset.

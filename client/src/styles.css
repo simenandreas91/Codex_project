@@ -474,6 +474,56 @@ textarea {
   gap: 24px;
 }
 
+
+.pagination-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.pagination-bar__summary {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.pagination-bar__controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pagination-bar__page {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.pagination-bar__button {
+  padding: 6px 14px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  background: transparent;
+  color: var(--text);
+  font-weight: 500;
+  transition: background var(--transition), border-color var(--transition), color var(--transition), transform var(--transition);
+}
+
+.pagination-bar__button:hover:not(:disabled) {
+  background: rgba(99, 102, 241, 0.12);
+  border-color: rgba(99, 102, 241, 0.45);
+  transform: translateY(-1px);
+}
+
+.pagination-bar__button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-color: rgba(148, 163, 184, 0.2);
+}
 .snippet-card {
   position: relative;
   background: var(--surface-alt);
@@ -906,9 +956,3 @@ textarea {
   max-height: 320px;
   overflow: auto;
 }
-
-
-
-
-
-

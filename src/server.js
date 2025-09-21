@@ -181,7 +181,7 @@ app.get('/api/snippets', async (req, res) => {
   }
 
   if (q) {
-    const likeQuery = `%${q}%`;
+    const likeQuery = '%' + q + '%';
     params.push(likeQuery, likeQuery, likeQuery, likeQuery);
     filters.push('(snippets.name LIKE ? OR snippets.description LIKE ? OR snippets.script LIKE ? OR snippets.metadata LIKE ?)');
   }
@@ -191,19 +191,47 @@ app.get('/api/snippets', async (req, res) => {
     filters.push('snippets.type = ?');
   }
 
-  const whereClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
-  const rows = await all(
-    `SELECT snippets.*, users.email AS owner_email
-     FROM snippets
-     JOIN users ON users.id = snippets.user_id
-     ${whereClause}
-     ORDER BY snippets.updated_at DESC` ,
-    params
-  );
+  const whereClause = filters.length ? 'WHERE ' + filters.join(' AND ') : '';
+  const totalQuery = [
+    'SELECT COUNT(*) AS count',
+    'FROM snippets',
+    whereClause
+  ].filter(Boolean).join('\n     ');
+  const totalRow = await get(totalQuery, params);
+  const total = totalRow?.count ?? 0;
+
+  const requestedPage = parseInt(req.query.page, 10);
+  const requestedLimit = parseInt(req.query.limit, 10);
+  const defaultLimit = owned === 'true' ? 50 : 12;
+  const limitCandidate = Number.isInteger(requestedLimit) && requestedLimit > 0 ? requestedLimit : defaultLimit;
+  const limit = Math.max(1, Math.min(limitCandidate, 100));
+  const totalPages = total > 0 ? Math.ceil(total / limit) : 1;
+  const pageCandidate = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+  const page = Math.min(pageCandidate, totalPages);
+  const offset = (page - 1) * limit;
+
+  const rowsQuery = [
+    'SELECT snippets.*, users.email AS owner_email',
+    'FROM snippets',
+    'JOIN users ON users.id = snippets.user_id',
+    whereClause,
+    'ORDER BY snippets.updated_at DESC',
+    'LIMIT ? OFFSET ?'
+  ].filter(Boolean).join('\n     ');
+  const rows = await all(rowsQuery, [...params, limit, offset]);
 
   const sessionContext = { currentUserId: req.session.userId, isAdmin: isAdmin(req) };
-  res.json(rows.map((row) => sanitizeSnippet(row, sessionContext)));
+  res.json({
+    items: rows.map((row) => sanitizeSnippet(row, sessionContext)),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages
+    }
+  });
 });
+
 
 app.get('/api/snippets/:id', async (req, res) => {
   const snippet = await get(

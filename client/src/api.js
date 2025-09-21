@@ -31,19 +31,28 @@ export async function fetchSession() {
   return handleResponse(response);
 }
 
-export async function fetchSnippets({ q, type, owned } = {}) {
+export async function fetchSnippets({ q, type, owned, page, limit } = {}) {
   const params = new URLSearchParams();
   if (q) params.set('q', q);
-  if (owned) { params.set('owned', 'true'); } else if (type) { params.set('type', type); }
+  if (owned) {
+    params.set('owned', 'true');
+  } else if (type) {
+    params.set('type', type);
+  }
+  if (page) params.set('page', String(page));
+  if (limit) params.set('limit', String(limit));
   const query = params.toString();
   const url = query ? `/api/snippets?${query}` : '/api/snippets';
   const response = await fetch(url, { credentials: 'include' });
   return handleResponse(response);
 }
 
-export async function fetchMySnippets() {
-  const response = await fetch('/api/snippets?owned=true', { credentials: 'include' });
-  return handleResponse(response);
+export async function fetchMySnippets(limit = 100) {
+  const data = await fetchSnippets({ owned: true, limit, page: 1 });
+  if (data && Array.isArray(data.items)) {
+    return data.items;
+  }
+  return Array.isArray(data) ? data : [];
 }
 
 export async function register(payload) {
