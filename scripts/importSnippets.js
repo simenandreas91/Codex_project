@@ -49,6 +49,13 @@ const CATEGORY_CONFIG = [
     type: 'fix_script',
     directory: 'Fix scripts',
     buildMetadata: buildFixScriptMetadata
+  },
+  {
+    label: 'Service Portal Widgets',
+    type: 'service_portal_widget',
+    directory: 'Service Portal Widgets',
+    buildMetadata: buildWidgetMetadata,
+    readFiles: readWidgetFiles
   }
 ];
 
@@ -353,6 +360,50 @@ function buildFixScriptMetadata({ readme }) {
   return metadata;
 }
 
+async function readWidgetFiles(snippetDir, entries) {
+  const widgetFiles = {};
+  const fileNames = {
+    html: ['HTML Template.html', 'html.html', 'template.html'],
+    css: ['CSS-SCSS.scss', 'css.css', 'styles.scss', 'style.css'],
+    client: ['client controller.js', 'client_script.js', 'client.js'],
+    server: ['server script.js', 'server_script.js', 'server.js']
+  };
+
+  for (const [key, possibleNames] of Object.entries(fileNames)) {
+    for (const name of possibleNames) {
+      const entry = entries.find(e => e.isFile() && e.name.toLowerCase() === name.toLowerCase());
+      if (entry) {
+        const content = await fs.readFile(path.join(snippetDir, entry.name), 'utf8');
+        widgetFiles[key] = { name: entry.name, content: content.trim() };
+        break;
+      }
+    }
+  }
+
+  return widgetFiles;
+}
+
+function buildWidgetMetadata({ readme, widgetFiles, directorySegments }) {
+  const map = parseKeyValueMap(readme);
+  const application = detectApplication(map, readme) || 'Global';
+  const name = directorySegments[directorySegments.length - 1].replace(/%20/g, ' ').trim();
+  const id = name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+
+  const metadata = {
+    application,
+    name,
+    id,
+    active: parseBoolean(getValue(map, ['active']), true)
+  };
+
+  if (widgetFiles.html) metadata.html_template = widgetFiles.html.content;
+  if (widgetFiles.css) metadata.css = widgetFiles.css.content;
+  if (widgetFiles.client) metadata.client_script = widgetFiles.client.content;
+  if (widgetFiles.server) metadata.server_script = widgetFiles.server.content;
+
+  return metadata;
+}
+
 async function ensureOwner(email, password) {
   const existing = await get('SELECT id FROM users WHERE email = ?', [email]);
   if (existing) {
@@ -364,7 +415,7 @@ async function ensureOwner(email, password) {
   return result.id;
 }
 
-async function importCategory({ label, type, directory, buildMetadata }, ownerId) {
+async function importCategory({ label, type, directory, buildMetadata, readFiles = readScriptFiles }, ownerId) {
   const sourceDir = path.join(REPO_ROOT, directory);
   try {
     await fs.access(sourceDir);
@@ -383,14 +434,37 @@ async function importCategory({ label, type, directory, buildMetadata }, ownerId
   for (const dirent of subdirectories) {
     const snippetDir = path.join(sourceDir, dirent.name);
     const entries = await fs.readdir(snippetDir, { withFileTypes: true });
-    const scripts = await readScriptFiles(snippetDir, entries);
+    const files = await readFiles(snippetDir, entries);
 
-    if (!scripts.length) {
+    if (type === 'service_portal_widget' && Object.keys(files).length === 0) {
       skipped.push(dirent.name);
       continue;
     }
 
-    const script = combineScripts(snippetDir, scripts);
+    if (type !== 'service_portal_widget' && !files.length) {
+      skipped.push(dirent.name);
+      continue;
+    }
+
+    let script = '';
+    let fileList = [];
+    if (type === 'service_portal_widget') {
+      // Combine widget files with headers for script field
+      const orderedKeys = ['html', 'css', 'client', 'server'];
+      const parts = [];
+      for (const key of orderedKeys) {
+        if (files[key]) {
+          const header = `// ${key.toUpperCase()} from ${files[key].name}\n`;
+          parts.push(header + files[key].content);
+          fileList.push(files[key].name);
+        }
+      }
+      script = parts.join('\n\n---\n\n');
+    } else {
+      script = combineScripts(snippetDir, files);
+      fileList = files.map(f => f.name);
+    }
+
     if (!script) {
       skipped.push(dirent.name);
       continue;
@@ -400,21 +474,19 @@ async function importCategory({ label, type, directory, buildMetadata }, ownerId
     const readme = readmeEntry ? await fs.readFile(path.join(snippetDir, readmeEntry.name), 'utf8') : '';
 
     const directorySegments = [directory, dirent.name];
-    const metadata = buildMetadata({
-      readme,
-      scriptContent: script,
-      scriptFiles: scripts,
-      directorySegments
-    });
+    const metadataInput = type === 'service_portal_widget' 
+      ? { readme, widgetFiles: files, directorySegments }
+      : { readme, scriptContent: script, scriptFiles: files, directorySegments };
+    const metadata = buildMetadata(metadataInput);
 
     metadata.application = metadata.application ?? 'Global';
     metadata.source = {
       repo: SOURCE_REPO,
       directory: directorySegments.join('/'),
-      scriptFiles: scripts.map((file) => file.name),
+      scriptFiles: fileList,
       webUrl: `https://github.com/${SOURCE_REPO}/tree/main/${encodeSegments(directorySegments)}`,
-      rawUrl: scripts.length === 1
-        ? `https://raw.githubusercontent.com/${SOURCE_REPO}/main/${encodeSegments([...directorySegments, scripts[0].name])}`
+      rawUrl: fileList.length === 1
+        ? `https://raw.githubusercontent.com/${SOURCE_REPO}/main/${encodeSegments([...directorySegments, fileList[0]])}`
         : undefined
     };
 
@@ -468,4 +540,3 @@ main()
   .finally(() => {
     db.close();
   });
-

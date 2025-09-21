@@ -119,9 +119,20 @@ export const snippetTypes = [
       { id: 'runContext', label: 'Intended context', type: 'text', placeholder: 'Post-clone' },
       { id: 'notes', label: 'Notes', type: 'textarea', placeholder: 'Impacts production data. Test before running.' }
     ]
+  },
+  {
+    id: 'service_portal_widget',
+    label: 'Service Portal Widget',
+    description: 'Custom AngularJS-based widgets for ServiceNow Service Portal pages.',
+    fields: [
+      { id: 'application', label: 'Application', type: 'text', required: true, placeholder: 'Global' },
+      { id: 'id', label: 'Widget ID', type: 'text', required: true, placeholder: 'accordion-widget' },
+      { id: 'name', label: 'Name', type: 'text', required: true, placeholder: 'Accordion Widget' },
+      { id: 'active', label: 'Active', type: 'checkbox', defaultValue: true },
+      { id: 'html_template', label: 'HTML Template', type: 'textarea', placeholder: '<div>Widget HTML</div>' },
+      { id: 'css', label: 'CSS/SCSS', type: 'textarea', placeholder: '.widget { color: blue; }' },
+      { id: 'client_script', label: 'Client Script', type: 'textarea', placeholder: 'function($scope) { $scope.data = {}; }' },
+      { id: 'server_script', label: 'Server Script', type: 'textarea', placeholder: 'data.myData = {};' }
+    ]
   }
 ];
-
-
-
-
