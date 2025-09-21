@@ -88,7 +88,11 @@ export function SnippetModal({
   const [metadata, setMetadata] = useState({});
   const [xmlUploaded, setXmlUploaded] = useState(false);
 
-  const commonOperators = ['=', '!=', 'IN', 'NOT IN', 'LIKE', 'STARTSWITH', 'ENDSWITH', 'ISNULL', 'ISNOTNULL'];
+  const commonOperators = [
+    '=', '!=', 'IN', 'NOT IN', 'LIKE', 'NOT LIKE', 'STARTSWITH', 'ENDSWITH', 
+    'ISEMPTY', 'ISNOTEMPTY', 'ANYTHING', 'SAMEAS', 'NSAMEAS', 'EMPTYSTRING', 
+    'CHANGESFROM', 'CHANGESTO', 'INHIERARCHY', 'VALCHANGES', 'ISNULL', 'ISNOTNULL'
+  ];
 
   useEffect(() => {
     if (!open) return;
@@ -182,15 +186,41 @@ export function SnippetModal({
       script = scriptNode.textContent?.trim() || '';
     }
     const filterConditionNode = sysScript.querySelector('filter_condition');
-    const items = filterConditionNode?.querySelectorAll('item') || [];
-    const filterConditions = Array.from(items)
-      .filter(item => item.getAttribute('field') !== '')
-      .map(item => ({
-        field: item.getAttribute('field') || '',
-        operator: item.getAttribute('operator') || '=',
-        value: item.getAttribute('value') || '',
-        connector: item.getAttribute('or') === 'true' ? 'OR' : 'AND'
-      }));
+    let filterConditions = [];
+    if (filterConditionNode) {
+      const items = filterConditionNode.querySelectorAll('item');
+      filterConditions = Array.from(items)
+        .filter(item => item.getAttribute('field') !== '')
+        .map(item => ({
+          field: item.getAttribute('field') || '',
+          operator: item.getAttribute('operator') || '=',
+          value: item.getAttribute('value') || '',
+          connector: item.getAttribute('or') === 'true' ? 'OR' : 'AND'
+        }));
+
+      // Fallback to parsing encoded string if no valid items
+      if (filterConditions.length === 0) {
+        const encoded = filterConditionNode.textContent.trim();
+        if (encoded) {
+          const parts = encoded.split('^');
+          filterConditions = parts.map(part => {
+            const knownOperators = ['VALCHANGES', 'ISNOTEMPTY', 'EQ', '=', '!=', 'IN', 'NOT IN', 'LIKE', 'STARTSWITH', 'ENDSWITH', 'ISNULL', 'ISNOTNULL'];
+            for (const op of knownOperators) {
+              if (part.endsWith(op)) {
+                const field = part.slice(0, -op.length);
+                return {
+                  field: field.trim(),
+                  operator: op,
+                  value: '',
+                  connector: 'AND'
+                };
+              }
+            }
+            return null;
+          }).filter(Boolean);
+        }
+      }
+    }
 
     let application = sysScript.querySelector('sys_domain')?.textContent?.trim() || 'Global';
     if (application === 'global') application = 'Global';
