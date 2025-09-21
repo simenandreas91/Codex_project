@@ -179,7 +179,7 @@ export function SnippetModal({
 
     const typeId = 'business_rule';
     const name = sysScript.querySelector('name')?.textContent?.trim() || '';
-    const description = sysScript.querySelector('description')?.textContent?.trim() || `Business Rule: ${name}`;
+    const description = sysScript.querySelector('description')?.textContent?.trim() || '';
     let script = '';
     const scriptNode = sysScript.querySelector('script');
     if (scriptNode) {
