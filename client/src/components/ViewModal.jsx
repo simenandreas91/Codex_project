@@ -63,32 +63,68 @@ export function ViewModal({
         </div>
       </div>
       <div className="modal-body view-modal">
-        <section className="modal-section">
-          <h3>Details</h3>
-          <div className="view-meta">
-            <div className="view-meta-row">
-              <span className="view-meta-label">Type</span>
-              <span className="view-meta-value">{typeDef?.label ?? snippet.type}</span>
-            </div>
-            {snippet.description ? (
-              <div className="view-meta-row">
-                <span className="view-meta-label">Description</span>
-                <span className="view-meta-value">{snippet.description}</span>
-              </div>
-            ) : null}
-            {typeDef?.fields?.map((field) => {
-              if (SKIPPED_FIELDS.has(field.id)) return null;
-              const value = snippet.metadata?.[field.id];
-              if (value === undefined || value === null || value === '') return null;
+        <div className="form-grid">
+          <label className="field">
+            <span>Snippet type</span>
+            <div className="readonly-input">{typeDef?.label ?? snippet.type}</div>
+          </label>
+
+          {snippet.description ? (
+            <label className="field field--span">
+              <span>Description</span>
+              <div className="readonly-textarea">{snippet.description}</div>
+            </label>
+          ) : null}
+        </div>
+
+        <div className="type-specific">
+          {typeDef?.fields?.map((field) => {
+            if (SKIPPED_FIELDS.has(field.id)) return null;
+            const value = snippet.metadata?.[field.id];
+            if (value === undefined || value === null || value === '') return null;
+
+            if (field.id === 'filterCondition' && snippet.type === 'business_rule') {
               return (
-                <div key={field.id} className="view-meta-row">
-                  <span className="view-meta-label">{field.label}</span>
-                  <span className="view-meta-value">{formatFieldValue(field, value)}</span>
-                </div>
+                <label key={field.id} className="field field--span">
+                  <span>{field.label}</span>
+                  <div className="filter-conditions-readonly">
+                    {value.length === 0 ? (
+                      <p>No conditions added.</p>
+                    ) : (
+                      value.map((cond, index) => (
+                        <div key={index} className="condition-row-readonly">
+                          <span className="condition-field">{cond.field}</span>
+                          <span className="condition-operator">{cond.operator}</span>
+                          <span className="condition-value">"{cond.value}"</span>
+                          {index > 0 && <span className="condition-connector">({cond.connector})</span>}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </label>
               );
-            })}
-          </div>
-        </section>
+            }
+
+            const formattedValue = formatFieldValue(field, value);
+            let valueElement;
+            const isSpan = field.type === 'textarea';
+            if (field.type === 'textarea') {
+              valueElement = <div className="readonly-textarea">{formattedValue}</div>;
+            } else {
+              valueElement = <div className="readonly-input">{formattedValue}</div>;
+            }
+
+            return (
+              <label key={field.id} className={`field ${isSpan ? 'field--span' : ''}`}>
+                <span>{field.label}</span>
+                {valueElement}
+              </label>
+            );
+          })}
+          {typeDef?.fields?.length === 0 && (
+            <p className="empty-hint">No metadata fields for this snippet type.</p>
+          )}
+        </div>
 
         {snippet.type === 'service_portal_widget' ? (
           <div className="widget-sections">
