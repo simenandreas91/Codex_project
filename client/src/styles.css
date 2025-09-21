@@ -812,6 +812,31 @@ textarea {
 .code-block code {
   font-family: 'Fira Code', 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
   font-size: 0.9rem;
+  color: initial;
+}
+
+.code-block .hljs {
+  color: initial !important;
+}
+
+.code-block .hljs-keyword {
+  color: #81a1c1 !important;
+}
+
+.code-block .hljs-string {
+  color: #a3be8c !important;
+}
+
+.code-block .hljs-comment {
+  color: #b48ead !important;
+}
+
+.code-block .hljs-number {
+  color: #d08770 !important;
+}
+
+.code-block .hljs-built_in {
+  color: #8fa8c4 !important;
 }
 
 /* Fullscreen script */

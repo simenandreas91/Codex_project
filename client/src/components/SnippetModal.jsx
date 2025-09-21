@@ -131,6 +131,71 @@ export function SnippetModal({
     });
   };
 
+  const parseXMLToSnippet = (xmlDoc) => {
+    const sysScript = xmlDoc.querySelector('sys_script');
+    if (!sysScript) {
+      alert('Invalid XML: No <sys_script> found. This feature supports Business Rule XML exports.');
+      return null;
+    }
+
+    const typeId = 'business_rule';
+    const name = sysScript.querySelector('name')?.textContent?.trim() || '';
+    const description = sysScript.querySelector('description')?.textContent?.trim() || `Business Rule: ${name}`;
+    let script = '';
+    const scriptNode = sysScript.querySelector('script');
+    if (scriptNode) {
+      script = scriptNode.textContent?.trim() || '';
+    }
+    const filterConditionNode = sysScript.querySelector('filter_condition');
+    const filterCondition = filterConditionNode?.textContent?.trim() || '';
+
+    const metadata = {
+      application: sysScript.querySelector('sys_domain')?.textContent?.trim() || 'Global',
+      table: sysScript.querySelector('collection')?.textContent?.trim() || filterConditionNode?.getAttribute('table') || '',
+      when: sysScript.querySelector('when')?.textContent?.trim() || '',
+      order: parseInt(sysScript.querySelector('order')?.textContent || '100', 10),
+      active: sysScript.querySelector('active')?.textContent === 'true',
+      condition: sysScript.querySelector('condition')?.textContent?.trim() || '',
+      filterCondition: filterCondition,
+    };
+
+    return { typeId, name, description, script, metadata };
+  };
+
+  const handleXmlUpload = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(e.target.result, 'text/xml');
+        if (xmlDoc.querySelector('parsererror')) {
+          throw new Error('Invalid XML format');
+        }
+
+        const parsed = parseXMLToSnippet(xmlDoc);
+        if (parsed) {
+          setTypeId(parsed.typeId);
+          setName(parsed.name);
+          setDescription(parsed.description);
+          setScript(parsed.script);
+          // Delay metadata set to allow type change to take effect
+          setTimeout(() => {
+            setMetadata((prev) => ({ ...prev, ...parsed.metadata }));
+          }, 0);
+          event.target.value = ''; // Clear file input
+          alert('XML parsed successfully! Form fields have been populated.');
+        }
+      } catch (err) {
+        console.error('XML parsing error:', err);
+        alert('Error parsing XML: ' + err.message + '. Please check the file and try again.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
   return (
     <Modal open={open} onClose={onClose} labelledBy="snippetModalTitle">
       <div className="modal-header">
@@ -144,6 +209,20 @@ export function SnippetModal({
           &times;
         </button>
       </div>
+
+      {!snippet && (
+        <div className="upload-section">
+          <label className="field field--span">
+            <span>Or upload ServiceNow XML to auto-fill (Business Rules supported)</span>
+            <input
+              type="file"
+              accept=".xml"
+              onChange={handleXmlUpload}
+              style={{ marginTop: '0.5rem' }}
+            />
+          </label>
+        </div>
+      )}
       <form className="modal-body" onSubmit={handleSubmit}>
         <div className="form-grid">
           <label className="field">

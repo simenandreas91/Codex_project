@@ -16,6 +16,7 @@ export function CodeBlock({ value = '', className = '', isInline = false, langua
       codeRef.current.textContent = value ?? '';
       try {
         hljs.highlightElement(codeRef.current);
+        console.log('Highlighting applied for language:', language, 'Code length:', value.length);
       } catch (error) {
         console.warn('Highlight failed', error);
       }

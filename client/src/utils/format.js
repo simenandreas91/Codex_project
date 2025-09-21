@@ -6,20 +6,9 @@ export function formatScript(script) {
   if (!trimmed) {
     return '// No script provided';
   }
-
-  try {
-    return prettier
-      .format(trimmed, {
-        parser: 'babel',
-        plugins: [babel],
-        semi: true,
-        singleQuote: true
-      })
-      .trim();
-  } catch (error) {
-    console.warn('Failed to format script', error);
-    return trimmed;
-  }
+  // Temporarily disable prettier to avoid client-side errors; re-add after fixing plugin setup
+  console.warn('Formatting disabled due to prettier standalone issue');
+  return trimmed;
 }
 
 export function formatFieldValue(field, value) {
