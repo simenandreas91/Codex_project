@@ -16,6 +16,9 @@ try {
   const widgets = db.prepare('SELECT COUNT(*) as count FROM snippets WHERE type = "service_portal_widget"').get();
   console.log('Service Portal Widgets:', widgets ? widgets.count : 'Error querying widgets');
 
+  const rest = db.prepare('SELECT COUNT(*) as count FROM snippets WHERE type = "rest_message_v2"').get();
+  console.log('RESTMessageV2 scripts:', rest ? rest.count : 'Error querying RESTMessageV2');
+
   // Check if table exists
   const tableInfo = db.prepare('SELECT name FROM sqlite_master WHERE type="table" AND name="snippets"').get();
   console.log('Snippets table exists:', !!tableInfo);

@@ -74,6 +74,12 @@ const CATEGORY_CONFIG = [
     type: 'background_script',
     directory: 'Background Scripts',
     buildMetadata: buildFixScriptMetadata
+  },
+  {
+    label: 'RESTMessageV2',
+    type: 'rest_message_v2',
+    directory: 'RESTMessageV2',
+    buildMetadata: buildRestMessageV2Metadata
   }
 ];
 
@@ -449,6 +455,44 @@ function buildCatalogClientScriptMetadata({ readme, scriptContent }) {
   if (uiPolicy) metadata.ui_policy = uiPolicy;
 
   return metadata;
+}
+
+function buildRestMessageV2Metadata({ readme, scriptContent }) {
+  const map = parseKeyValueMap(readme);
+  const application = detectApplication(map, readme) || 'Global';
+  let accessibleFrom = getValue(map, ['accessible from', 'scope']) ?? 'All application scopes';
+  accessibleFrom = accessibleFrom.toLowerCase().includes('this application')
+    ? 'This application scope only'
+    : 'All application scopes';
+  let clientCallable = parseBoolean(getValue(map, ['client callable']), false);
+  if (!map.has('client callable') && /client callable/i.test(readme ?? '')) {
+    clientCallable = true;
+  }
+  if (!clientCallable && /GlideAjax/i.test(scriptContent ?? '')) {
+    clientCallable = true;
+  }
+
+  // Extract REST-specific fields
+  const method = getValue(map, ['method', 'http method']) || inferHttpMethodFromScript(scriptContent);
+  const endpoint = getValue(map, ['endpoint', 'url', 'api url']);
+  const authProfile = getValue(map, ['auth', 'authentication', 'profile']);
+
+  const metadata = {
+    application,
+    accessibleFrom,
+    clientCallable,
+    method: method || 'POST', // Default to POST as common for integrations
+  };
+  if (endpoint) metadata.endpoint = endpoint;
+  if (authProfile) metadata.authProfile = authProfile;
+
+  return metadata;
+}
+
+function inferHttpMethodFromScript(scriptContent) {
+  if (!scriptContent) return undefined;
+  const methodMatch = scriptContent.match(/setHttpMethod\s*\(\s*['"]([A-Z]+)['"]/i);
+  return methodMatch ? methodMatch[1] : undefined;
 }
 
 async function ensureOwner(email, password) {

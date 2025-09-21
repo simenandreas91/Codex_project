@@ -171,5 +171,16 @@ export const snippetTypes = [
       { id: 'application', label: 'Application', type: 'text', required: true, placeholder: 'Global' },
       { id: 'notes', label: 'Notes', type: 'textarea', placeholder: 'Run in background for testing GlideRecord queries.' }
     ]
+  },
+  {
+    id: 'rest_message_v2',
+    label: 'RESTMessageV2',
+    description: 'Scripts using RESTMessageV2 for outbound REST API calls in ServiceNow.',
+    fields: [
+      { id: 'application', label: 'Application', type: 'text', required: true, placeholder: 'Global' },
+      { id: 'endpoint', label: 'Endpoint', type: 'text', placeholder: 'https://api.example.com' },
+      { id: 'method', label: 'Method', type: 'text', placeholder: 'POST' },
+      { id: 'notes', label: 'Notes', type: 'textarea', placeholder: 'RESTMessageV2 script for API integration.' }
+    ]
   }
 ];
