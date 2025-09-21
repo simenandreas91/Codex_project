@@ -1,5 +1,4 @@
 import { snippetTypes } from '../../src/snippetTypes.js';
-import { createError } from 'h3'; // Optional, but for simplicity use plain
 
 export default async function handler(event) {
   const headers = {
