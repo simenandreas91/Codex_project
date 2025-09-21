@@ -62,6 +62,12 @@ const CATEGORY_CONFIG = [
     type: 'mail_script',
     directory: 'Mail Scripts',
     buildMetadata: buildMailScriptMetadata
+  },
+  {
+    label: 'Catalog Client Scripts',
+    type: 'catalog_client_script',
+    directory: 'Catalog Client Script',
+    buildMetadata: buildCatalogClientScriptMetadata
   }
 ];
 
@@ -422,6 +428,21 @@ function buildMailScriptMetadata({ readme, scriptContent, scriptFiles, directory
     table,
     active
   };
+}
+
+function buildCatalogClientScriptMetadata({ readme, scriptContent }) {
+  const map = parseKeyValueMap(readme);
+  const application = detectApplication(map, readme) || 'Global';
+  const type = normalizeClientScriptType(getValue(map, ['type', 'script type']));
+  const variable = getValue(map, ['variable', 'catalog variable', 'field']);
+  const uiPolicy = parseBoolean(getValue(map, ['ui policy', 'ui_policy']), false);
+  const active = parseBoolean(getValue(map, ['active']), true);
+
+  const metadata = { application, type, active };
+  if (variable) metadata.variable = variable;
+  if (uiPolicy) metadata.ui_policy = uiPolicy;
+
+  return metadata;
 }
 
 async function ensureOwner(email, password) {

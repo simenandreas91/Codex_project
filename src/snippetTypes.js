@@ -144,5 +144,23 @@ export const snippetTypes = [
       { id: 'table', label: 'Table', type: 'text', required: true, placeholder: 'incident' },
       { id: 'active', label: 'Active', type: 'checkbox', defaultValue: true }
     ]
+  },
+  {
+    id: 'catalog_client_script',
+    label: 'Catalog Client Script',
+    description: 'Client scripts for Service Catalog variables and UI policies.',
+    fields: [
+      { id: 'application', label: 'Application', type: 'text', required: true, placeholder: 'Global' },
+      {
+        id: 'type',
+        label: 'Type',
+        type: 'select',
+        required: true,
+        options: ['onLoad', 'onChange', 'onSubmit']
+      },
+      { id: 'variable', label: 'Variable', type: 'text', placeholder: 'assignment_group' },
+      { id: 'ui_policy', label: 'UI Policy', type: 'checkbox', defaultValue: false },
+      { id: 'active', label: 'Active', type: 'checkbox', defaultValue: true }
+    ]
   }
 ];
