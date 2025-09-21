@@ -978,3 +978,23 @@ textarea {
   max-height: 320px;
   overflow: auto;
 }
+
+.upload-success {
+  padding: 1rem;
+  background: rgba(52, 211, 153, 0.1);
+  border: 1px solid var(--success-soft);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+}
+
+.upload-reset-btn {
+  background: transparent;
+  color: var(--success);
+  border-color: var(--success-soft);
+}
+
+.upload-reset-btn:hover {
+  background: rgba(52, 211, 153, 0.08);
+  border-color: var(--success);
+  color: var(--success);
+}

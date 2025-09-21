@@ -86,11 +86,13 @@ export function SnippetModal({
   const [description, setDescription] = useState('');
   const [script, setScript] = useState('');
   const [metadata, setMetadata] = useState({});
+  const [xmlUploaded, setXmlUploaded] = useState(false);
 
   const commonOperators = ['=', '!=', 'IN', 'NOT IN', 'LIKE', 'STARTSWITH', 'ENDSWITH', 'ISNULL', 'ISNOTNULL'];
 
   useEffect(() => {
     if (!open) return;
+    setXmlUploaded(false);
     const initialType = snippet?.type ?? defaultType ?? snippetTypes[0]?.id ?? '';
     setTypeId(initialType);
     setName(snippet?.name ?? '');
@@ -104,13 +106,15 @@ export function SnippetModal({
 
   useEffect(() => {
     if (!open) return;
-    let initial = buildMetadata(typeDef, snippet?.metadata, {
-      preserve: Boolean(snippet && snippet.type === typeId)
-    });
-    if (typeId === 'business_rule' && !initial.filterCondition) {
-      initial.filterCondition = [];
+    if (snippet) {
+      const source = snippet.metadata;
+      const preserve = true;
+      let initial = buildMetadata(typeDef, source, { preserve });
+      if (typeId === 'business_rule' && !initial.filterCondition) {
+        initial.filterCondition = [];
+      }
+      setMetadata(initial);
     }
-    setMetadata(initial);
   }, [typeDef, typeId, open, snippet]);
 
   const handleTypeChange = (event) => {
@@ -188,8 +192,11 @@ export function SnippetModal({
         connector: item.getAttribute('or') === 'true' ? 'OR' : 'AND'
       }));
 
+    let application = sysScript.querySelector('sys_domain')?.textContent?.trim() || 'Global';
+    if (application === 'global') application = 'Global';
+
     const metadata = {
-      application: sysScript.querySelector('sys_domain')?.textContent?.trim() || 'Global',
+      application,
       table: sysScript.querySelector('collection')?.textContent?.trim() || filterConditionNode?.getAttribute('table') || '',
       when: sysScript.querySelector('when')?.textContent?.trim() || '',
       order: parseInt(sysScript.querySelector('order')?.textContent || '100', 10),
@@ -220,11 +227,10 @@ export function SnippetModal({
           setName(parsed.name);
           setDescription(parsed.description);
           setScript(parsed.script);
-          // Delay metadata set to allow type change to take effect
-          setTimeout(() => {
-            setMetadata((prev) => ({ ...prev, ...parsed.metadata }));
-          }, 0);
+          // Set full metadata directly for upload to avoid reset
+          setMetadata(parsed.metadata);
           event.target.value = ''; // Clear file input
+          setXmlUploaded(true);
           alert('XML parsed successfully! Form fields have been populated.');
         }
       } catch (err) {
@@ -233,6 +239,15 @@ export function SnippetModal({
       }
     };
     reader.readAsText(file);
+  };
+
+  const resetXmlUpload = () => {
+    setXmlUploaded(false);
+    setTypeId('');
+    setName('');
+    setDescription('');
+    setScript('');
+    setMetadata({});
   };
 
   return (
@@ -251,15 +266,28 @@ export function SnippetModal({
 
       {!snippet && (
         <div className="upload-section">
-          <label className="field field--span">
-            <span>Or upload ServiceNow XML to auto-fill (Business Rules supported)</span>
-            <input
-              type="file"
-              accept=".xml"
-              onChange={handleXmlUpload}
-              style={{ marginTop: '0.5rem' }}
-            />
-          </label>
+          {!xmlUploaded ? (
+            <label className="field field--span">
+              <span>Or upload ServiceNow XML to auto-fill (Business Rules supported)</span>
+              <input
+                type="file"
+                accept=".xml"
+                onChange={handleXmlUpload}
+                style={{ marginTop: '0.5rem' }}
+              />
+            </label>
+          ) : (
+            <div className="upload-success">
+              <p>XML imported successfully! Fields populated above.</p>
+              <button
+                type="button"
+                className="btn btn-ghost upload-reset-btn"
+                onClick={resetXmlUpload}
+              >
+                Clear and upload new
+              </button>
+            </div>
+          )}
         </div>
       )}
       <form className="modal-body" onSubmit={handleSubmit}>
