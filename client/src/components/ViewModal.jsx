@@ -17,18 +17,18 @@ export function ViewModal({
   canManage
 }) {
   const formattedScript = useMemo(() => formatScript(snippet?.script ?? ''), [snippet]);
-  const [copyLabel, setCopyLabel] = useState('Copy script');
+  const [copyLabel, setCopyLabel] = useState('Copy');
 
   useEffect(() => {
     if (open) {
-      setCopyLabel('Copy script');
+      setCopyLabel('Copy');
     }
   }, [open, snippet]);
 
   const handleCopy = async () => {
     await onCopyScript(formattedScript);
     setCopyLabel('Copied!');
-    setTimeout(() => setCopyLabel('Copy script'), 2000);
+    setTimeout(() => setCopyLabel('Copy'), 2000);
   };
 
   if (!open || !snippet) {
